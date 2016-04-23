@@ -1,0 +1,11 @@
+{
+  "queueId": 1,
+  "status": "pending",
+  "description": "A new job to be proccessed now",
+  "type": "email",
+  "data": {
+    "template": "welcome",
+    "email": "payments@sandboxwebs.com",
+    "subject": "TEST Welcome !!"
+  }
+}
