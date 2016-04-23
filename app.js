@@ -1,21 +1,25 @@
+var config = require('./config');
 var express = require('express');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
+var auth = require('./middlewares/auth');
 var app = express();
 
 
 /// Settings
 app.set('json spaces', 40);
+app.set('config', config);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(auth.check());
 
 var indexRoutes = require('./routes/index');
-var jobRoutes = require('./routes/messages');
+var messageRoutes = require('./routes/messages');
 
 app.use('/', indexRoutes);
-app.use('/jobs', jobRoutes);
+app.use('/messages', messageRoutes);
 
 
 // catch 404 and forward to error handler

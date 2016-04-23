@@ -1,6 +1,6 @@
 var models = require('../models/models');
 
-exports.load = function (req, res, next, jobId) {
+exports.load = function (req, res, next, messageId) {
 
     var resultCallback = function (err, results) {
 
@@ -16,40 +16,48 @@ exports.load = function (req, res, next, jobId) {
         }
     };
 
-    models.message.findById(jobId, resultCallback);
+    models.message.findOne({_id: messageId,
+        from_node_id:req.app.get('config')['dds_node_id_header']},
+        resultCallback);
 };
 
 exports.delete = function (req, res, next) {
 
-    models.message.remove(req.message, function (err, results) {
-        if(err){
-            next(err);
-        }else{
-            res.json(results);
-        }
+    models.message.remove({_id: req.message_id,
+    from_node_id:req.app.get('config')['dds_node_id_header']},
+        function (err, results) {
+            if(err){
+                next(err);
+            }else{
+                res.json(results);
+            }
     });
 };
 
 exports.deleteAll = function (req, res, next) {
 
-    models.message.remove({}, function (err, results) {
-        if(err){
-            next(err);
-        }else{
-            res.json(results);
-        }
+    models.message.remove({from_node_id: req.app.get('config')['dds_node_id_header']},
+        function (err, results) {
+            if(err){
+                next(err);
+            }else{
+                res.json(results);
+            }
     });
 };
 
 exports.update = function (req, res, next) {
 
-    models.message.update({_id: req.message._id}, req.body, {runValidators: true}, function (err, results) {
+    models.message.update({_id: req.message._id, from_node_id:req.app.get('config')['dds_node_id_header']},
+        req.body,
+        {runValidators: true},
+        function (err, results) {
 
-        if (err) {
-            next(err);
-        } else {
-            res.json(results);
-        }
+            if (err) {
+                next(err);
+            } else {
+                res.json(results);
+            }
     });
 };
 
@@ -58,6 +66,8 @@ exports.show = function (req, res) {
 };
 
 exports.index = function (req, res, next) {
+    
+    // Todo implement limit, change it to in process and serve.
 
     var resultCallback = function (err, results) {
         if (err) {
@@ -67,18 +77,25 @@ exports.index = function (req, res, next) {
         }
     };
 
-    models.message.find({}, resultCallback);
+    models.message.find({from_node_id: req.app.get('config')['dds_node_id_header']}, resultCallback);
 };
 
 exports.create = function (req, res, next) {
-
-    var admUser = new models.message(req.body);
-    admUser.save(function (err, result) {
+    
+    req.body.from_node_id = req.app.get('config')['dds_node_id_header'];
+    var message = new models.message(req.body);
+    message.save(function (err, result) {
         if (err) {
             next(err);
         } else {
-            res.header('Location', '/jobs/' + result._id);
+            res.header('Location', '/messages/' + result._id);
             res.status(201).json(result);
         }
     });
+};
+
+exports.ack = function(req, res, next){
+    // Todo implement this method. It me ack all messages
+     // by id and node id .
+     
 };

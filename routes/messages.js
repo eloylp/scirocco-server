@@ -1,15 +1,15 @@
 var express = require('express');
 var router = express.Router();
-var jobsController = require('../controllers/messages');
+var messagesController = require('../controllers/messages');
 
 
-router.param('messageId', jobsController.load);
-router.get('/', jobsController.index);
-router.get('/:messageId([0-9a-f]+)', jobsController.show);
-router.post('/', jobsController.create);
-router.delete('/:messageId([0-9a-f]+)', jobsController.delete);
-router.delete('/', jobsController.deleteAll);
-router.put('/:messageId([0-9a-f]+)', jobsController.update);
+router.param('messageId', messagesController.load);
+router.get('/', messagesController.index);
+router.get('/:messageId([0-9a-f]+)', messagesController.show);
+router.post('/', messagesController.create);
+router.delete('/:messageId([0-9a-f]+)', messagesController.delete);
+router.delete('/', messagesController.deleteAll);
+router.put('/:messageId([0-9a-f]+)', messagesController.update);
 
 
 module.exports = router;

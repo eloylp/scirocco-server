@@ -1,16 +1,6 @@
 var validate = require('mongoose-validator');
 
 
-
-exports.identificators = [
-
-    validate({
-        validator: "isLength",
-        arguments: [3, 250],
-        message: "Idnetificator should be between {ARGS[0]} and {ARGS[1]} characters."
-    })
-];
-
 exports.integerUnsigned = [
 
     validate({
@@ -39,7 +29,6 @@ exports.description = [
         message: "Description should be between {ARGS[0]} and {ARGS[1]} characters."
     })
 ];
-
 
 
 exports.float = [

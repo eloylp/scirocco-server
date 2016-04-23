@@ -3,9 +3,10 @@ var validators = require('./validators');
 
 var messageSchema = new mongoose.Schema({
     
-    node_id: {type: String, index: true, validate: validators.identificators},
-    queue_id: {type: String, index: true, validate: validators.identificators},
-    batch_id: {type: String, index: true, validate: validators.identificators},
+    to_node_id: {type: String, index: true, validate: validators.hexadecimal},
+    from_node_id: {type: String, index: true, validate: validators.hexadecimal},
+    queue_id: {type: String, index: true, validate: validators.hexadecimal},
+    batch_id: {type: String, index: true, validate: validators.hexadecimal},
     type: {type: String, required: true, index: true},
     status: {type: String, required: true, index: true, validate: validators.messageStatus},
     tries: {type: Number, index: true, validate: validators.integerUnsigned},
