@@ -5,7 +5,7 @@ exports.load = function (req, res, next, jobId) {
     var resultCallback = function (err, results) {
 
         if (results) {
-            req.job = results;
+            req.message = results;
             next();
         } else if (err) {
             next(err);
@@ -16,12 +16,12 @@ exports.load = function (req, res, next, jobId) {
         }
     };
 
-    models.job.findById(jobId, resultCallback);
+    models.message.findById(jobId, resultCallback);
 };
 
 exports.delete = function (req, res, next) {
 
-    models.job.remove(req.job, function (err, results) {
+    models.message.remove(req.message, function (err, results) {
         if(err){
             next(err);
         }else{
@@ -32,7 +32,7 @@ exports.delete = function (req, res, next) {
 
 exports.deleteAll = function (req, res, next) {
 
-    models.job.remove({}, function (err, results) {
+    models.message.remove({}, function (err, results) {
         if(err){
             next(err);
         }else{
@@ -43,7 +43,7 @@ exports.deleteAll = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
-    models.job.update({_id: req.job._id}, req.body, {runValidators: true}, function (err, results) {
+    models.message.update({_id: req.message._id}, req.body, {runValidators: true}, function (err, results) {
 
         if (err) {
             next(err);
@@ -54,7 +54,7 @@ exports.update = function (req, res, next) {
 };
 
 exports.show = function (req, res) {
-    res.json(req.job);
+    res.json(req.message);
 };
 
 exports.index = function (req, res, next) {
@@ -67,12 +67,12 @@ exports.index = function (req, res, next) {
         }
     };
 
-    models.job.find({}, resultCallback);
+    models.message.find({}, resultCallback);
 };
 
 exports.create = function (req, res, next) {
 
-    var admUser = new models.job(req.body);
+    var admUser = new models.message(req.body);
     admUser.save(function (err, result) {
         if (err) {
             next(err);

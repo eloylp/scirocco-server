@@ -19,7 +19,7 @@ app.set('x-powered-by', false);
 
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){
-  debug('jobqueue server listening on port '+ server.address().port);
+  debug('jsdds server listening on port '+ server.address().port);
 });
 
 /**

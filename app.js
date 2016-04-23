@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var indexRoutes = require('./routes/index');
-var jobRoutes = require('./routes/jobs');
+var jobRoutes = require('./routes/messages');
 
 app.use('/', indexRoutes);
 app.use('/jobs', jobRoutes);

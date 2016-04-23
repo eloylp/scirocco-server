@@ -1,5 +1,6 @@
 {
-  "queueId": 1,
+  "node_id": "alpha1",
+  "queue_id": 1,
   "status": "pending",
   "description": "A new job to be proccessed now",
   "type": "email",

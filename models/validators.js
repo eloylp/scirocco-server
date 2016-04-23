@@ -10,13 +10,13 @@ exports.integerUnsigned = [
     })
 ];
 
-exports.jobStatus = [
+exports.messageStatus = [
 
     validate({
         validator: "isIn",
-        arguments: [['scheduled', 'pending', 'candidate', 'queued', 'processing', 'processed']],
-        valid: ['scheduled', 'pending', 'candidate', 'queued', 'processing', 'processed'],
-        message: "Incorrect job status."
+        arguments: [['scheduled', 'pending', 'processing', 'processed']],
+        valid: ['scheduled', 'pending', 'processing', 'processed'],
+        message: "Incorrect message status."
     })
 ];
 

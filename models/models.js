@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var dbURI = process.env.QUEUE_MONGO_URL + '/jobqueue';
+var dbURI = process.env.QUEUE_MONGO_URL + '/dds';
 mongoose.connect(dbURI);
 
 mongoose.set('debug', (process.env.QUEUE_API_ENV == 'development'));
@@ -30,7 +30,7 @@ process.on('SIGINT', function() {
 });
 
 
-exports.job = require('./job');
+exports.message = require('./message');
 
 
 
