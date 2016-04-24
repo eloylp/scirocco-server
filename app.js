@@ -13,7 +13,7 @@ app.set('config', config);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(auth.check());
+app.use(auth.check);
 
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var dbURI = process.env.QUEUE_MONGO_URL + '/dds';
+var dbURI = process.env.MONGO_URL + '/dds';
 mongoose.connect(dbURI);
 
 mongoose.set('debug', (process.env.QUEUE_API_ENV == 'development'));
