@@ -73,26 +73,24 @@ exports.index = function (req, res, next) {
 
     // Todo implement limit, change it to in process and serve.
     var max_config_limit = req.app.get('config')['max_pull_messages_allowed'];
-    var limit = (res.query.limit < max_config_limit ? req.query.limit : false) || max_config_limit;
-
+    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
     models.message
-        .select("_id")
-        .find({to_node_id: req.app.get('config')['dds_node_id_header']})
+        .find({to_node_id: req.header(node_id_header), status: "pending"})
+        //.select("_id data")
         .sort({create_time: -1})
         .limit(limit)
         .exec(function (err, results) {
             if (err) {
-                next(err);
-                
+                next(err);                
             } else {
-
                 var ids = [];
                 results.forEach(function (item) {
-                    ids.append(item._id);
-                });  /// Todo look for callback
+                    ids.push(item._id);
+                });
 
-                models.message.update({id_: {$in: ids}},
-                    {$set: {status: "processing"}})
+                models.message.update({_id: {$in: ids}, to_node_id: req.header(node_id_header)},
+                    {$set: {status: "processing"}}, {multi: true})
                     .exec(function (err, result) {
 
                         if (err) {
@@ -103,7 +101,6 @@ exports.index = function (req, res, next) {
                     });
             }
         });
-
 };
 
 exports.create = function (req, res, next) {

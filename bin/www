@@ -4,8 +4,8 @@ var http = require('http'),
     debug = require('debug')('jsdds'),
     app = require('../app');
 
-var port = normalizePort(process.env.QUEUE_API_PORT || 3000);
-var env = process.env.QUEUE_API_ENV;
+var port = normalizePort(process.env.API_PORT || 3000);
+var env = process.env.API_ENV;
 
 
 app.set('port', port);

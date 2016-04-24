@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var dbURI = process.env.MONGO_URL + '/dds';
 mongoose.connect(dbURI);
 
-mongoose.set('debug', (process.env.QUEUE_API_ENV == 'development'));
+mongoose.set('debug', (process.env.API_ENV == 'development'));
 
 // CONNECTION EVENTS
 // When successfully connected
