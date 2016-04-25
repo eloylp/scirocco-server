@@ -59,7 +59,24 @@ exports.updatePartial = function (req, res, next) {
 
     models.message.update({_id: req.message._id, from_node_id: req.header(node_id_header)},
         req.body,
-        {runValidators: true},
+        {runValidators: true, upsert: false, multi: false},
+        function (err, results) {
+
+            if (err) {
+                next(err);
+            } else {
+                res.json(results);
+            }
+        });
+};
+
+exports.updatePartialMany = function (req, res, next) {
+
+    var node_id_header = req.app.get('config')['dds_node_id_header'];
+
+    models.message.update({from_node_id: req.header(node_id_header)},
+        req.body,
+        {runValidators: true, upsert: false, multi: true},
         function (err, results) {
 
             if (err) {
@@ -76,7 +93,24 @@ exports.update = function (req, res, next) {
 
     models.message.update({_id: req.message._id, from_node_id: req.header(node_id_header)},
         req.body,
-        {runValidators: true},
+        {runValidators: true, multi: false, upsert: true},
+        function (err, results) {
+
+            if (err) {
+                next(err);
+            } else {
+                res.json(results);
+            }
+        });
+};
+
+exports.updateMany = function (req, res, next) {
+
+    var node_id_header = req.app.get('config')['dds_node_id_header'];
+
+    models.message.update({from_node_id: req.header(node_id_header)},
+        req.body,
+        {runValidators: true, multi: true, upsert: true},
         function (err, results) {
 
             if (err) {
@@ -120,4 +154,21 @@ exports.create = function (req, res, next) {
             res.status(201).json(result);
         }
     });
+};
+
+exports.ack = function (req, res, next) {
+
+    var node_id_header = req.app.get('config')['dds_node_id_header'];
+
+    models.message.update({_id: req.message._id, from_node_id: req.header(node_id_header)},
+        {status: "processed", processed_time: new Date()},
+        {runValidators: true, multi: false, upsert: false},
+        function (err, results) {
+
+            if (err) {
+                next(err);
+            } else {
+                res.json(results);
+            }
+        });
 };

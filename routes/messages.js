@@ -9,10 +9,11 @@ router.get('/:messageId([0-9a-f]+)', messagesController.show);
 router.post('/', messagesController.create);
 router.delete('/:messageId([0-9a-f]+)', messagesController.delete);
 router.delete('/', messagesController.deleteAll);
-
-// Todo fix this. update can be full or partial and to one document or many.
 router.put('/:messageId([0-9a-f]+)', messagesController.update);
+router.put('/', messagesController.updateMany);
 router.patch('/:messageId([0-9a-f]+)', messagesController.updatePartial);
+router.patch('/', messagesController.updatePartialMany);
+router.patch('/ack/:messageId([0-9a-f]+)', messagesController.ack);
 
 
 
