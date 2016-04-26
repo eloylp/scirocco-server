@@ -27,6 +27,28 @@ exports.load = function (req, res, next, batchId) {
 
 };
 
+exports.create = function(req, res, next){
+
+    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var batch_id = uuid.v4();
+    var date = new Date();
+    req.body.forEach(function(item, index, array){
+
+        array[index].from_node_id = node_id_header;
+        array[index].batch_id = batch_id;
+        array[index].status = 'pending';
+        array[index].create_time = date;
+    });
+
+    models.message.insertMany(req.body, function(err, docs){
+
+        if(err){
+            next(err);
+        }else{
+            res.json({batch_id: batch_id});
+        }
+    });
+};
 
 exports.delete = function (req, res, next) {
 

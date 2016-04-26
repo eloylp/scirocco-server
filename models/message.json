@@ -1,12 +1,17 @@
 {
-  "node_id": "alpha1",
-  "queue_id": 1,
-  "status": "pending",
-  "description": "A new job to be proccessed now",
-  "type": "email",
-  "data": {
-    "template": "welcome",
-    "email": "payments@sandboxwebs.com",
-    "subject": "TEST Welcome !!"
-  }
+  "to_node_id": "09af1",
+  "from_node_id": "09af2",
+  "queue_id": "queue",
+  "batch_id": "",
+  "type": "",
+  "status": "",
+  "tries": 0,
+  "creation_time": "",
+  "update_time": "",
+  "scheduled_time": "",
+  "processing_time": "",
+  "error_time": "",
+  "processed_time": "",
+  "description": "",
+  "data": "data"
 }

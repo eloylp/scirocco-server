@@ -28,7 +28,7 @@ exports.delete = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
     models.message.remove({
-            _id: req.message_id,
+            _id: req.message._id,
             from_node_id: req.header(node_id_header)
         },
         function (err, results) {
