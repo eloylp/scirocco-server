@@ -17,9 +17,12 @@ app.use(auth.check);
 
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');
+var batchRoutes = require('./routes/batches');
+
 
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
+app.use('/batches', batchRoutes);
 
 
 // catch 404 and forward to error handler
