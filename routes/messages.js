@@ -3,18 +3,16 @@ var router = express.Router();
 var messagesController = require('../controllers/messages');
 
 
-router.param('messageId', messagesController.load);
 router.get('/', messagesController.obtain);
-router.get('/:messageId([0-9a-f]+)', messagesController.show);
+router.get('/:message_id([0-9a-f]+)', messagesController.show);
 router.post('/', messagesController.create);
-router.delete('/:messageId([0-9a-f]+)', messagesController.delete);
+router.delete('/:message_id([0-9a-f]+)', messagesController.delete);
 router.delete('/', messagesController.deleteAll);
-router.put('/:messageId([0-9a-f]+)', messagesController.update);
-router.put('/', messagesController.updateMany);
-router.patch('/:messageId([0-9a-f]+)', messagesController.updatePartial);
-router.patch('/', messagesController.updatePartialMany);
-router.patch('/ack/:messageId([0-9a-f]+)', messagesController.ack);
+router.patch('/:messageId([0-9a-f]+)', messagesController.update);
+router.patch('/', messagesController.updateMany);
 
+/// Todo think about this, is an action it can be unnecesary. patch for a specifed doc may cover it:
+router.patch('/ack/:messageId([0-9a-f]+)', messagesController.ack);
 
 
 module.exports = router;

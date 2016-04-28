@@ -105,7 +105,7 @@ exports.ack = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
     models.message.update({batch_id: req.params.batch_id, to_node_id: req.header(node_id_header), status: "processing"},
-        {$set: {status: "processed", proccesed_time: new Date()}}, {multi: true})
+        {$set: {status: "processed", processed_time: new Date()}}, {multi: true})
         .exec(function (err, result) {
 
             if (err) {
