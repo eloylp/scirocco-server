@@ -36,9 +36,10 @@ exports.update = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
 
-    models.message.update({_id: req.params.message_id, to_node_id: req.header(node_id_header)},
+    console.log(req.body);
+    models.message.findOneAndUpdate({_id: req.params.message_id, to_node_id: req.header(node_id_header)},
         req.body,
-        {runValidators: true, multi: false, upsert: true},
+        {runValidators: true, new: true},
         function (err, results) {
 
             if (err) {
@@ -49,23 +50,6 @@ exports.update = function (req, res, next) {
         });
 };
 
-/// todo test it.
-exports.updateMany = function (req, res, next) {
-
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
-
-    models.message.update({to_node_id: req.header(node_id_header)},
-        req.body,
-        {runValidators: true, multi: true, upsert: true},
-        function (err, results) {
-
-            if (err) {
-                next(err);
-            } else {
-                res.json(results);
-            }
-        });
-};
 
 exports.show = function (req, res) {
 

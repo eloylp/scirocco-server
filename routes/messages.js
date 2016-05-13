@@ -8,11 +8,10 @@ router.get('/:message_id([0-9a-f]+)', messagesController.show);
 router.post('/', messagesController.create);
 router.delete('/:message_id([0-9a-f]+)', messagesController.delete);
 router.delete('/', messagesController.deleteAll);
-router.patch('/:messageId([0-9a-f]+)', messagesController.update);
-router.patch('/', messagesController.updateMany);
+router.patch('/:message_id([0-9a-f]+)', messagesController.update);
 
 /// Todo think about this, is an action it can be unnecesary. patch for a specifed doc may cover it:
-router.patch('/ack/:messageId([0-9a-f]+)', messagesController.ack);
+router.patch('/ack/:message_id([0-9a-f]+)', messagesController.ack);
 
 
 module.exports = router;
