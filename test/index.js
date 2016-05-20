@@ -1,15 +1,27 @@
+
+
 var supertest = require('supertest');
 var should = require('should');
 
-var server = supertest.agent('http://localhost:3000');
+var request = supertest.agent('http://localhost:3000');
+var server;
 
 
+describe('Testing index rest api.', function(){
 
-describe('Testing rest api.', function(){
+
+    beforeEach(function(){
+        delete require.cache[require.resolve('../bin/www')];
+        server = require('../bin/www');
+    });
+
+    afterEach(function (done) {
+        server.close(done);
+    });
 
     it("Should return 403 because there a are not token set.", function(done){
 
-        server.get('/')
+        request.get('/')
             .expect('Content-Type', /json/)
             .expect(403)
             .end(function (err, res) {
@@ -21,7 +33,7 @@ describe('Testing rest api.', function(){
     });
 
     it("Should return 200 because is authenticated.", function(done){
-      server.get('/')
+      request.get('/')
           .set('Authorization', 'DEFAULT_TOKEN')
           .expect('Content-Type', /json/)
           .expect(200)
