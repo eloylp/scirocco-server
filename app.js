@@ -15,7 +15,7 @@ var app = express();
 
 /// Settings
 
-app.set('port', process.env.API_PORT || 3000);
+app.set('port', process.env.APP_PORT || 3000);
 app.set('env', process.env.APP_ENV);
 app.set('x-powered-by', false);
 app.set('json spaces', 40);

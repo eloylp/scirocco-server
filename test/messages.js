@@ -10,7 +10,7 @@ var request = supertest.agent('http://localhost:'+ process.env.APP_PORT);
 var server;
 
 
-describe('Testing index rest api.', function(){
+describe('Testing endpoint messages.', function(){
 
 
     beforeEach(function(){
