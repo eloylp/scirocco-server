@@ -20,7 +20,7 @@ var dbURI = process.env.MONGO_URL + '/' + dbName;
 
 mongoose.connect(dbURI);
 
-mongoose.set('debug', (process.env.APP_ENV == 'development' || process.env.APP_ENV == 'testing'));
+mongoose.set('debug', (process.env.APP_ENV == 'development'));
 
 // CONNECTION EVENTS
 // When successfully connected
