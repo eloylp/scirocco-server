@@ -10,8 +10,7 @@ var request = supertest.agent('http://localhost:'+ process.env.APP_PORT);
 var server;
 
 
-describe('Testing endpoint messages.', function(){
-
+describe('Testing resource messages.', function(){
 
     beforeEach(function(){
         delete require.cache[require.resolve('../bin/www')];

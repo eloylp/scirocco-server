@@ -63,7 +63,6 @@ exports.show = function (req, res) {
         });
 };
 
-// Todo tested
 exports.obtain = function (req, res, next) {
 
     // Todo implement limit, change it to in process and serve.
