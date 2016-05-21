@@ -48,11 +48,12 @@ exports.show = function (req, res) {
 
     var max_config_limit = req.app.get('config')['max_pull_messages_allowed'];
     var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
 
     models.message
         .find({to_node_id: req.header(node_id_header), batch_id: req.params.batch_id})
         .sort({create_time: -1})
-        .limit(max_config_limit)
+        .limit(limit)
         .exec(function (err, results) {
             if (err) {
                 next(err);
