@@ -10,7 +10,7 @@ var config = require('./config.js');
 var express = require('express');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-var auth = require('./middlewares/auth');
+var authMiddleware = require('./middlewares/auth');
 var app = express();
 
 /// Settings
@@ -22,25 +22,25 @@ app.set('json spaces', 40);
 app.set('config', config);
 
 
-/// Middlewares
+/// Middlewares add
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(auth.check);
+app.use(authMiddleware.check);
 
 /// Routing
 
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');
 var batchRoutes = require('./routes/batches');
+var queueRoutes = require('./routes/queue');
+
 
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
 app.use('/batches', batchRoutes);
-
-
-
+app.use('/queue', queueRoutes);
 
 
 
@@ -55,7 +55,7 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development' || 'testing') {
+if (app.get('env') === 'development' || app.get('env') === 'testing') {
   app.use(function (err, req, res, next) {
 
     if(err.name == 'ValidationError'){
