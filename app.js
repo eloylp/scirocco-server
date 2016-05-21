@@ -1,8 +1,10 @@
+/// Load environment, if proceed
 
-/// Load environment
+if (!process.env.NO_APP_FILE_ENV) {
+    var env = require('node-env-file');
+    env(__dirname + '/.env');
+}
 
-var env = require('node-env-file');
-env(__dirname + '/.env');
 
 /// Dependencies
 
@@ -26,7 +28,7 @@ app.set('config', config);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(authMiddleware.check);
 
 /// Routing
@@ -43,49 +45,48 @@ app.use('/batches', batchRoutes);
 app.use('/queue', queueRoutes);
 
 
-
 ///  Error handling
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development' || app.get('env') === 'testing') {
-  app.use(function (err, req, res, next) {
+    app.use(function (err, req, res, next) {
 
-    if(err.name == 'ValidationError'){
-      res.status(400);
-    }else if(err.status){
-      res.status(err.status);
-    }else{
-      res.status(500);
-    }
-    res.json({
-      message: err.message,
-      errors: err.errors
+        if (err.name == 'ValidationError') {
+            res.status(400);
+        } else if (err.status) {
+            res.status(err.status);
+        } else {
+            res.status(500);
+        }
+        res.json({
+            message: err.message,
+            errors: err.errors
+        });
     });
-  });
 }
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
-  if(err.name == 'ValidationError'){
-    res.status(400);
-  }else if(err.status){
-    res.status(err.status);
-  }else{
-    res.status(500);
-  }
-  res.json({
-    message: err.message,
-    errors: err.errors
-  });
+    if (err.name == 'ValidationError') {
+        res.status(400);
+    } else if (err.status) {
+        res.status(err.status);
+    } else {
+        res.status(500);
+    }
+    res.json({
+        message: err.message,
+        errors: err.errors
+    });
 });
 
 module.exports = app;

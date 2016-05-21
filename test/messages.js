@@ -21,8 +21,9 @@ describe('Testing resource messages.', function(){
     });
 
     afterEach(function (done) {
-        server.close(done);
-        model.message.remove({}, done);
+        server.close(function(){
+            model.message.remove({}, done);
+        });
     });
 
     it("If no messages api will return empty array.", function(done){
@@ -36,6 +37,28 @@ describe('Testing resource messages.', function(){
                     throw err;
                 }
                 (res.body).should.be.an.instanceOf(Array).and.have.lengthOf(0);
+                done();
+            });
+    });
+
+    it("Post a message and get it.", function(done){
+        // todo continue here
+
+        request.post(path)
+            .set('Authorization', 'DEFAULT_TOKEN')
+            .send({
+                status:"pending",
+                data: "data",
+                type: "email"
+            })
+            .expect('Content-Type', /json/)
+            .expect('Location', /\/messages\/[0-9a-f]/)
+            .expect(201)
+            .end(function (err, res) {
+                if(err){
+                    throw err;
+                }
+                (res.body).should.be.an.instanceOf(Object).and.have.property('data');
                 done();
             });
     });

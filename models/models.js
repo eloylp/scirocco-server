@@ -1,23 +1,5 @@
 var mongoose = require('mongoose');
-var dbName;
-switch (process.env.APP_ENV) {
-
-    case 'production':
-        dbName = 'dds';
-        break;
-    case 'development':
-        dbName = 'ddsdev';
-        break;
-    case 'testing':
-        dbName = 'ddstesting';
-        break;
-    default:
-        dbName = 'ddsdev';
-        break;
-}
-var dbURI = process.env.MONGO_URL + '/' + dbName;
-
-
+var dbURI = process.env.MONGO_URL;
 mongoose.connect(dbURI);
 
 mongoose.set('debug', (process.env.APP_ENV == 'development'));
