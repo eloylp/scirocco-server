@@ -17,7 +17,7 @@ var messageSchema = new mongoose.Schema({
     error_time: {type: Date},
     processed_time: {type: Date},
     description: {type: String, required: false, validate: validators.description},
-    data: {type: JSON, required: true}
+    data: {type: Object, required: true}
 
 });
 

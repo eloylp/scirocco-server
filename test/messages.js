@@ -90,7 +90,7 @@ describe('Testing resource messages.', function () {
             });
     });
 
-    it("Post a min message and recover it. Same data with _id expected.", function (done) {
+    it("Post a max message and recover it. Same data with _id expected.", function (done) {
 
         request.post(path)
             .set('Authorization', token)
@@ -112,7 +112,7 @@ describe('Testing resource messages.', function () {
                 }
 
                 var resp = res;
-                
+
                 request.get(res.header.location)
                     .set('Authorization', token)
                     .set(fromHeader, 'af123')
@@ -299,6 +299,39 @@ describe('Testing resource messages.', function () {
                         (res.body.processing_time === null).should.be.true;
                         (res.body.error_time === null).should.be.true;
                         (res.body.processed_time === null).should.be.true;
+                        done();
+                    });
+            });
+    });
+
+    it("Post a message and delete it.", function (done) {
+
+        request.post(path)
+            .set('Authorization', token)
+            .set(fromHeader, 'af123')
+            .send({
+                to_node_id: "09af1",
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            })
+            .expect(201)
+            .expect('Content-Type', /json/)
+            .expect('Location', /\/messages\/[0-9a-f]/)
+            .end(function (err, res) {
+                if (err) {
+                    throw err;
+                }
+                request.delete(res.header.location)
+                    .set('Authorization', token)
+                    .set(fromHeader, 'af123')
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (req, res) {
+                        (res.body).should.be.instanceOf(Object).and.have.property('ok');
+                        (res.body).should.be.instanceOf(Object).and.have.property('n');
+                        (res.body.ok).should.be.true;
+                        (res.body.n).should.be.equal(1);
                         done();
                     });
             });
