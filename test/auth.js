@@ -8,6 +8,7 @@ var should = require('should');
 
 var request = supertest.agent('http://localhost:'+ process.env.APP_PORT);
 var server;
+var token = 'DEFAULT_TOKEN';
 
 
 describe('Testing api auth.', function(){
@@ -37,7 +38,7 @@ describe('Testing api auth.', function(){
 
     it("Should return 200 because is authenticated.", function(done){
       request.get('/')
-          .set('Authorization', 'DEFAULT_TOKEN')
+          .set('Authorization', token)
           .expect('Content-Type', /json/)
           .expect(200)
           .end(function(err, res){

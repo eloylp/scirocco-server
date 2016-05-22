@@ -3,12 +3,12 @@ var validators = require('./validators');
 
 var messageSchema = new mongoose.Schema({
     
-    to_node_id: {type: String, index: true, validate: validators.hexadecimal},
-    from_node_id: {type: String, index: true, validate: validators.hexadecimal},
+    to_node_id: {type: String, index: true, required:true, validate: validators.hexadecimal},
+    from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
     queue_id: {type: String, index: true, validate: validators.hexadecimal},
     batch_id: {type: String, index: true, validate: validators.hexadecimal},
     type: {type: String, required: true, index: true},
-    status: {type: String, required: true, index: true, validate: validators.messageStatus},
+    status: {type: String, required: false, index: true, validate: validators.messageStatus},
     tries: {type: Number, index: true, validate: validators.integerUnsigned},
     creation_time: {type: Date},
     update_time: {type: Date},
@@ -17,13 +17,13 @@ var messageSchema = new mongoose.Schema({
     error_time: {type: Date},
     processed_time: {type: Date},
     description: {type: String, required: false, validate: validators.description},
-    data: {type: JSON, required: false}
+    data: {type: JSON, required: true}
 
 });
 
 messageSchema.pre('save', function (next) {
 
-    this.status = this.status.match(/pending|scheduled/) ? this.status : 'pending';
+    this.status = (this.status && this.status.match(/pending|scheduled/)) ? this.status : 'pending';
     this.tries = 0;
     this.creation_time = new Date();
     this.scheduled_time = null;
