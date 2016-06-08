@@ -336,4 +336,44 @@ describe('Testing resource messages.', function () {
                     });
             });
     });
+
+    it("Should update created message and return it modified.", function (done) {
+        var message = new model.message({
+            "to_node_id": "af123",
+            "from_node_id": "af123",
+            "data": {"name": "tester", "love": true}
+        });
+        message.save(function (err, res) {
+
+            if(err){
+                throw err;
+                done()
+            }
+
+            request.patch(path + '/' + res.id)
+                .set('Authorization', token)
+                .set(fromHeader, 'af123')
+                .send({
+                    "data": {
+                        "name": "tester2",
+                        "love": false
+                    }
+                })
+                .expect(200)
+                .end(function (err, res) {
+
+                    if (err) {
+                        throw err;
+                        done()
+                    }
+
+                    (res.body.data).should.be.an.instanceOf(Object).and.have.property('name');
+                    (res.body.data).should.be.an.instanceOf(Object).and.have.property('love');
+                    (res.body.data.name).should.be.equal("tester2");
+                    (res.body.data.love).should.be.false;
+                    done();
+                })
+        });
+
+    });
 });
