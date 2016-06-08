@@ -7,7 +7,7 @@ var messageSchema = new mongoose.Schema({
     from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
     queue_id: {type: String, index: true, validate: validators.hexadecimal},
     batch_id: {type: String, index: true, validate: validators.hexadecimal},
-    type: {type: String, required: true, index: true},
+    type: {type: String, required: false, index: true},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
     tries: {type: Number, index: true, validate: validators.integerUnsigned},
     creation_time: {type: Date},

@@ -337,19 +337,17 @@ describe('Testing resource messages.', function () {
             });
     });
 
-    it("Should update created message and return it modified.", function (done) {
+    it("Should update previously created message and return it modified.", function (done) {
         var message = new model.message({
-            "to_node_id": "af123",
-            "from_node_id": "af123",
-            "data": {"name": "tester", "love": true}
+            to_node_id: "af123",
+            from_node_id: "af123",
+            data: {"name": "tester", "love": true}
         });
         message.save(function (err, res) {
 
-            if(err){
+            if (err) {
                 throw err;
-                done()
             }
-
             request.patch(path + '/' + res.id)
                 .set('Authorization', token)
                 .set(fromHeader, 'af123')
@@ -364,7 +362,6 @@ describe('Testing resource messages.', function () {
 
                     if (err) {
                         throw err;
-                        done()
                     }
 
                     (res.body.data).should.be.an.instanceOf(Object).and.have.property('name');
