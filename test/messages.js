@@ -12,9 +12,10 @@ var server;
 var path = '/messages';
 var token = 'DEFAULT_TOKEN';
 var fromHeader = 'DDS-node-id';
+var fromHeaderValue = 'af123';
 
 
-describe('Testing resource messages.', function () {
+describe('Testing messages resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
@@ -44,11 +45,11 @@ describe('Testing resource messages.', function () {
             });
     });
 
-    it("Post a message will be ok.", function (done) {
+    it("Post a message will be ok and must return created one.", function (done) {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -71,7 +72,7 @@ describe('Testing resource messages.', function () {
 
         request.post(path)
             .set('Authorization', token)
-            //.set(fromHeader, 'af123')
+            //.set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -90,63 +91,59 @@ describe('Testing resource messages.', function () {
             });
     });
 
-    it("Post a max message and recover it. Same data with _id expected.", function (done) {
+    it("Post a max message and recover it. Same data with _id expected. Other data will be null.",
+        function (done) {
 
-        request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, 'af123')
-            .send({
-                to_node_id: "09af1",
-                batch_id: "09af1",
-                queue_id: "09af1",
-                data: {name: "test"},
-                type: "email",
-                description: "description"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
+            request.post(path)
+                .set('Authorization', token)
+                .set(fromHeader, fromHeaderValue)
+                .send({
+                    to_node_id: "09af1",
+                    batch_id: "09af1",
+                    queue_id: "09af1",
+                    data: {name: "test"},
+                    type: "email",
+                    description: "description"
+                })
+                .expect(201)
+                .expect('Content-Type', /json/)
+                .expect('Location', /\/messages\/[0-9a-f]/)
+                .end(function (err, res) {
+                    if (err) {
+                        throw err;
+                    }
 
-                var resp = res;
+                    var resp = res;
 
-                request.get(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, 'af123')
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body).should.be.an.instanceOf(Object).and.have.property('_id');
-                        (res.body._id).should.be.exactly(resp.header.location.split("/").pop());
-                        (res.body.status).should.be.exactly("pending");
-                        (res.body.from_node_id).should.be.exactly("af123");
-                        (res.body.to_node_id).should.be.exactly("09af1");
-                        (res.body.type).should.be.exactly("email");
-                        (res.body.description).should.be.exactly("description");
-                        (res.body.batch_id).should.be.exactly("09af1");
-                        (res.body.queue_id).should.be.exactly("09af1");
-                        (res.body.tries).should.be.exactly(0);
-                        (res.body.creation_time !== null).should.be.true;
-                        (res.body.processed_time === null).should.be.true;
-                        (res.body.error_time === null).should.be.true;
-                        (res.body.processing_time === null).should.be.true;
-                        (res.body.scheduled_time === null).should.be.true;
-                        (res.body.data).should.be.instanceOf(Object).and.have.property('name');
-                        (res.body.data.name).should.be.exactly("test");
-                        done();
-                    });
-            });
-    });
+                    request.get(res.header.location)
+                        .set('Authorization', token)
+                        .set(fromHeader, fromHeaderValue)
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (req, res) {
+                            (res.body).should.be.an.instanceOf(Object).and.have.property('_id');
+                            (res.body._id).should.be.exactly(resp.header.location.split("/").pop());
+                            (res.body.status).should.be.exactly("pending");
+                            (res.body.from_node_id).should.be.exactly("af123");
+                            (res.body.to_node_id).should.be.exactly("09af1");
+                            (res.body.type).should.be.exactly("email");
+                            (res.body.description).should.be.exactly("description");
+                            (res.body.batch_id).should.be.exactly("09af1");
+                            (res.body.queue_id).should.be.exactly("09af1");
+                            (res.body.tries).should.be.exactly(0);
+                            (res.body.data).should.be.instanceOf(Object).and.have.property('name');
+                            (res.body.data.name).should.be.exactly("test");
+                            done();
+                        });
+                });
+        });
 
 
     it("Post a message with wrong status, may be always equal to pending.", function (done) {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "processing",
@@ -163,7 +160,7 @@ describe('Testing resource messages.', function () {
 
                 request.get(res.header.location)
                     .set('Authorization', token)
-                    .set(fromHeader, 'af123')
+                    .set(fromHeader, fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -177,7 +174,7 @@ describe('Testing resource messages.', function () {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "scheduled",
@@ -194,7 +191,7 @@ describe('Testing resource messages.', function () {
 
                 request.get(res.header.location)
                     .set('Authorization', token)
-                    .set(fromHeader, 'af123')
+                    .set(fromHeader, fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -208,7 +205,7 @@ describe('Testing resource messages.', function () {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -225,7 +222,7 @@ describe('Testing resource messages.', function () {
 
                 request.get(res.header.location)
                     .set('Authorization', token)
-                    .set(fromHeader, 'af123')
+                    .set(fromHeader, fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -239,7 +236,7 @@ describe('Testing resource messages.', function () {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pendinggggggggggggggggggggggggggggggggggggg",
@@ -258,11 +255,11 @@ describe('Testing resource messages.', function () {
             });
     });
 
-    it("System message fields are over written by app.", function (done) {
+    it("System message fields are rewrited by app.", function (done) {
 
         request.post(path)
             .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set(fromHeader, fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -288,7 +285,7 @@ describe('Testing resource messages.', function () {
 
                 request.get(res.header.location)
                     .set('Authorization', token)
-                    .set(fromHeader, 'af123')
+                    .set(fromHeader, fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -299,39 +296,6 @@ describe('Testing resource messages.', function () {
                         (res.body.processing_time === null).should.be.true;
                         (res.body.error_time === null).should.be.true;
                         (res.body.processed_time === null).should.be.true;
-                        done();
-                    });
-            });
-    });
-
-    it("Post a message and delete it.", function (done) {
-
-        request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, 'af123')
-            .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-                request.delete(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, 'af123')
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body).should.be.instanceOf(Object).and.have.property('ok');
-                        (res.body).should.be.instanceOf(Object).and.have.property('n');
-                        (res.body.ok).should.be.true;
-                        (res.body.n).should.be.equal(1);
                         done();
                     });
             });
@@ -350,7 +314,7 @@ describe('Testing resource messages.', function () {
             }
             request.patch(path + '/' + res.id)
                 .set('Authorization', token)
-                .set(fromHeader, 'af123')
+                .set(fromHeader, fromHeaderValue)
                 .send({
                     "data": {
                         "name": "tester2",
@@ -358,6 +322,7 @@ describe('Testing resource messages.', function () {
                     }
                 })
                 .expect(200)
+                .expect('Content-Type', /json/)
                 .end(function (err, res) {
 
                     if (err) {
@@ -373,4 +338,94 @@ describe('Testing resource messages.', function () {
         });
 
     });
+    it("Should delete a message, only the one belongs/emit.", function (done) {
+
+        var toDeleteId = require('mongoose').Types.ObjectId();
+        var messages = [
+            {
+                _id: toDeleteId,
+                to_node_id: fromHeaderValue,
+                from_node_id: fromHeaderValue,
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            },
+            {
+                to_node_id: fromHeaderValue + "23",
+                from_node_id: fromHeaderValue + "23",
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            }
+        ];
+
+        model.message.insertMany(messages, function (err, res) {
+
+            if (err) {
+                throw err;
+            }
+
+            request.delete(path + '/' + toDeleteId)
+                .set('Authorization', token)
+                .set(fromHeader, fromHeaderValue)
+                .expect(200)
+                .expect('Content-Type', /json/)
+                .end(function (req, res) {
+
+                    (res.body.ok).should.be.true;
+                    (res.body.n).should.be.equal(1);
+                    done();
+                });
+        });
+    });
+    it("Should remove all the messages only for present node",
+        function (done) {
+
+            var messages = [
+                {
+                    to_node_id: fromHeaderValue,
+                    from_node_id: fromHeaderValue,
+                    status: "pending",
+                    data: {name: "test"},
+                    type: "email"
+                },
+                {
+                    to_node_id: fromHeaderValue,
+                    from_node_id: fromHeaderValue,
+                    status: "pending",
+                    data: {name: "test"},
+                    type: "email"
+                },
+                /// This message must not be deleted, because it not belongs or emitted
+                /// to testing node.
+                {
+                    to_node_id: fromHeaderValue + "23",
+                    from_node_id: fromHeaderValue + "23",
+                    status: "pending",
+                    data: {name: "test"},
+                    type: "email"
+                }
+            ];
+
+            model.message.insertMany(messages, function (err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                request.delete(path)
+                    .set('Authorization', token)
+                    .set(fromHeader, fromHeaderValue)
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err) {
+                            throw err;
+                        }
+                        (res.body).should.be.instanceOf(Object);
+                        (res.body.ok).should.be.true;
+                        (res.body.n).should.be.equal(2);
+                        done();
+                    });
+            });
+        });
 });
