@@ -10,9 +10,7 @@ var model = require('../models/models');
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
 var path = '/queue';
-var token = 'DEFAULT_TOKEN';
-var fromHeader = 'DDS-node-id';
-var fromHeaderValue = 'af123';
+var config = require('../test/config');
 
 
 describe('Testing queue resource.', function () {
@@ -33,15 +31,15 @@ describe('Testing queue resource.', function () {
 
         var messages = [
             {
-                to_node_id: fromHeaderValue,
-                from_node_id: fromHeaderValue,
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
             },
             {
-                to_node_id: fromHeaderValue,
-                from_node_id: fromHeaderValue,
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -49,8 +47,8 @@ describe('Testing queue resource.', function () {
             /// This message must not be deleted, because it not belongs or emitted
             /// to testing node.
             {
-                to_node_id: fromHeaderValue + "23",
-                from_node_id: fromHeaderValue + "23",
+                to_node_id: config.fromHeaderValue + "23",
+                from_node_id: config.fromHeaderValue + "23",
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -60,16 +58,13 @@ describe('Testing queue resource.', function () {
         model.message.insertMany(messages);
 
         request.get(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .expect('Content-Type', 'application/json')
             .expect(200)
             .end(function(err, res){
 
-
-
-
-
+                done();
             });
     })
 

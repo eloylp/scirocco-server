@@ -10,9 +10,8 @@ var model = require('../models/models');
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
 var path = '/messages';
-var token = 'DEFAULT_TOKEN';
-var fromHeader = 'DDS-node-id';
-var fromHeaderValue = 'af123';
+var config = require('../test/config');
+
 
 
 describe('Testing messages resource.', function () {
@@ -32,8 +31,8 @@ describe('Testing messages resource.', function () {
     it("If no messages api will return empty array.", function (done) {
 
         request.get(path)
-            .set('Authorization', token)
-            .set(fromHeader, 'af123')
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .expect(200)
             .expect('Content-Type', /json/)
             .end(function (err, res) {
@@ -48,8 +47,8 @@ describe('Testing messages resource.', function () {
     it("Post a message will be ok and must return created one.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -71,8 +70,8 @@ describe('Testing messages resource.', function () {
     it("Post a message without 'from header'. will get bad request.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            //.set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            //.set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -95,8 +94,8 @@ describe('Testing messages resource.', function () {
         function (done) {
 
             request.post(path)
-                .set('Authorization', token)
-                .set(fromHeader, fromHeaderValue)
+                .set('Authorization', config.token)
+                .set(config.fromHeader, config.fromHeaderValue)
                 .send({
                     to_node_id: "09af1",
                     batch_id: "09af1",
@@ -116,8 +115,8 @@ describe('Testing messages resource.', function () {
                     var resp = res;
 
                     request.get(res.header.location)
-                        .set('Authorization', token)
-                        .set(fromHeader, fromHeaderValue)
+                        .set('Authorization', config.token)
+                        .set(config.fromHeader, config.fromHeaderValue)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -142,8 +141,8 @@ describe('Testing messages resource.', function () {
     it("Post a message with wrong status, may be always equal to pending.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "processing",
@@ -159,8 +158,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.get(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, fromHeaderValue)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -173,8 +172,8 @@ describe('Testing messages resource.', function () {
     it("Scheduled state is allowed in creation.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "scheduled",
@@ -190,8 +189,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.get(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, fromHeaderValue)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -204,8 +203,8 @@ describe('Testing messages resource.', function () {
     it("Pending state is allowed in creation.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -221,8 +220,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.get(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, fromHeaderValue)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -235,8 +234,8 @@ describe('Testing messages resource.', function () {
     it("Post a message with no valid status is a bad request.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pendinggggggggggggggggggggggggggggggggggggg",
@@ -258,8 +257,8 @@ describe('Testing messages resource.', function () {
     it("System message fields are rewrited by app.", function (done) {
 
         request.post(path)
-            .set('Authorization', token)
-            .set(fromHeader, fromHeaderValue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -284,8 +283,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.get(res.header.location)
-                    .set('Authorization', token)
-                    .set(fromHeader, fromHeaderValue)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -313,8 +312,8 @@ describe('Testing messages resource.', function () {
                 throw err;
             }
             request.patch(path + '/' + res.id)
-                .set('Authorization', token)
-                .set(fromHeader, fromHeaderValue)
+                .set('Authorization', config.token)
+                .set(config.fromHeader, config.fromHeaderValue)
                 .send({
                     "data": {
                         "name": "tester2",
@@ -344,15 +343,15 @@ describe('Testing messages resource.', function () {
         var messages = [
             {
                 _id: toDeleteId,
-                to_node_id: fromHeaderValue,
-                from_node_id: fromHeaderValue,
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
             },
             {
-                to_node_id: fromHeaderValue + "23",
-                from_node_id: fromHeaderValue + "23",
+                to_node_id: config.fromHeaderValue + "23",
+                from_node_id: config.fromHeaderValue + "23",
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -366,8 +365,8 @@ describe('Testing messages resource.', function () {
             }
 
             request.delete(path + '/' + toDeleteId)
-                .set('Authorization', token)
-                .set(fromHeader, fromHeaderValue)
+                .set('Authorization', config.token)
+                .set(config.fromHeader, config.fromHeaderValue)
                 .expect(200)
                 .expect('Content-Type', /json/)
                 .end(function (req, res) {
@@ -383,15 +382,15 @@ describe('Testing messages resource.', function () {
 
             var messages = [
                 {
-                    to_node_id: fromHeaderValue,
-                    from_node_id: fromHeaderValue,
+                    to_node_id: config.fromHeaderValue,
+                    from_node_id: config.fromHeaderValue,
                     status: "pending",
                     data: {name: "test"},
                     type: "email"
                 },
                 {
-                    to_node_id: fromHeaderValue,
-                    from_node_id: fromHeaderValue,
+                    to_node_id: config.fromHeaderValue,
+                    from_node_id: config.fromHeaderValue,
                     status: "pending",
                     data: {name: "test"},
                     type: "email"
@@ -399,8 +398,8 @@ describe('Testing messages resource.', function () {
                 /// This message must not be deleted, because it not belongs or emitted
                 /// to testing node.
                 {
-                    to_node_id: fromHeaderValue + "23",
-                    from_node_id: fromHeaderValue + "23",
+                    to_node_id: config.fromHeaderValue + "23",
+                    from_node_id: config.fromHeaderValue + "23",
                     status: "pending",
                     data: {name: "test"},
                     type: "email"
@@ -413,8 +412,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.delete(path)
-                    .set('Authorization', token)
-                    .set(fromHeader, fromHeaderValue)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
