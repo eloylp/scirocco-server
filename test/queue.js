@@ -89,7 +89,7 @@ describe('Testing queue resource.', function () {
             });
     });
 
-    it("Should ack and existing message as processed.", function (done) {
+    it("Should ack an existing message as processed.", function (done) {
 
         /// Post the message.
         request.post(path)
