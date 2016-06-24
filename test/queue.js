@@ -27,7 +27,7 @@ describe('Testing queue resource.', function () {
         });
     });
 
-    it("Should pull a message from queue", function(done){
+    it("Should pull a message from queue. Must return it in processing state.", function (done) {
 
         var messages = [
             {
@@ -43,15 +43,6 @@ describe('Testing queue resource.', function () {
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
-            },
-            /// This message must not be deleted, because it not belongs or emitted
-            /// to testing node.
-            {
-                to_node_id: config.fromHeaderValue + "23",
-                from_node_id: config.fromHeaderValue + "23",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
             }
         ];
 
@@ -60,13 +51,83 @@ describe('Testing queue resource.', function () {
         request.get(path)
             .set('Authorization', config.token)
             .set(config.fromHeader, config.fromHeaderValue)
-            .expect('Content-Type', 'application/json')
+            .expect('Content-Type', /json/)
             .expect(200)
-            .end(function(err, res){
+            .end(function (err, res) {
 
+                if (err) {
+                    throw err;
+                }
+                (res.body.to_node_id).should.be.equal(config.fromHeaderValue);
+                (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
+                (res.body.status).should.be.equal('processing');
                 done();
             });
-    })
+    });
 
+    it("Should push a message to queue, and return it in pending state.", function (done) {
+
+        request.post(path)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
+            .send({
+                to_node_id: "09af1",
+                data: {name: "test"},
+                type: "email"
+            })
+            .expect('Content-Type', /json/)
+            .expect('Location', /\/messages\/[0-9a-f]/)
+            .expect(201)
+            .end(function (err, res) {
+
+                (res.body.status).should.be.equal('pending');
+                (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
+                (res.body.data).should.be.instanceOf(Object);
+                (res.body.type).should.be.equal('email');
+                (res.body.to_node_id).should.be.equal('09af1');
+                done();
+            });
+    });
+
+    it("Should ack and existing message as processed.", function (done) {
+
+        /// Post the message.
+        request.post(path)
+            .set('Authorization', config.token)
+            .set('Content-Type', 'application/json')
+            .set(config.fromHeader, config.fromHeaderValue)
+            .send({
+                to_node_id: config.fromHeaderValue,
+                data: {"name": "tester"}
+            })
+            .end(function (err, res) {
+
+                if (err) {
+                    throw err;
+                }
+                /// Get the message.
+                request.get(path)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
+                    .end(function (err, res) {
+
+                        if (err) {
+                            throw err;
+                        }
+                        /// Ack message
+                        request.patch(path + '/' + res.body._id + '/ack')
+                            .set('Authorization', config.token)
+                            .set(config.fromHeader, config.fromHeaderValue)
+                            .end(function (err, res) {
+                                if (err) {
+                                    throw err;
+                                }
+                                (res.body.status).should.be.equal('processed');
+                                done();
+
+                            });
+                    });
+            });
+    });
 
 });

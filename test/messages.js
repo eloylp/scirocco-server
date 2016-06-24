@@ -302,8 +302,8 @@ describe('Testing messages resource.', function () {
 
     it("Should update previously created message and return it modified.", function (done) {
         var message = new model.message({
-            to_node_id: "af123",
-            from_node_id: "af123",
+            to_node_id: config.fromHeaderValue,
+            from_node_id: config.fromHeaderValue,
             data: {"name": "tester", "love": true}
         });
         message.save(function (err, res) {
