@@ -7,7 +7,7 @@ module.exports = {
     paths: {
         messages: "/messages",
         messageQueue: "/messageQueueRoutes",
-        batch: "/batches",
+        batches: "/batches",
         batchQueue: "/batchQueueRoutes"
     }
 };

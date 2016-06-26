@@ -12,7 +12,7 @@ var server;
 var config = require('../test/config');
 
 
-describe('Testing messageQueueRoutes resource.', function () {
+describe('Testing messageQueue resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];

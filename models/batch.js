@@ -1,19 +1,17 @@
 var mongoose = require('mongoose');
 var validators = require('./validators');
-var messageModel = require('./message');
 
 var batchSchema = new mongoose.Schema({
-    
+
     to_node_id: {type: String, index: true, required:true, validate: validators.hexadecimal},
     from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
-    batch_id: {type: String, index: true, validate: validators.hexadecimal},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
     creation_time: {type: Date},
     processing_time: {type: Date},
     processed_time: {type: Date},
     scheduled_time: {type: Date},
     error_time: {type: Date},
-    messages: [messageModel]
+    messages: []  /* TODO CALL MESSAGE MODEL.   */
 });
 
 batchSchema.pre('save', function (next) {
