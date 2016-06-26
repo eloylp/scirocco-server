@@ -1,30 +1,24 @@
 var mongoose = require('mongoose');
 var validators = require('./validators');
+var messageModel = require('./message');
 
-var messageSchema = new mongoose.Schema({
+var batchSchema = new mongoose.Schema({
     
     to_node_id: {type: String, index: true, required:true, validate: validators.hexadecimal},
     from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
-    queue_id: {type: String, index: true, validate: validators.hexadecimal},
-    group_id: {type: String, index: true, validate: validators.hexadecimal},
-    type: {type: String, required: false, index: true},
+    batch_id: {type: String, index: true, validate: validators.hexadecimal},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
-    tries: {type: Number, index: true, validate: validators.integerUnsigned},
     creation_time: {type: Date},
-    update_time: {type: Date},
-    scheduled_time: {type: Date},
     processing_time: {type: Date},
-    error_time: {type: Date},
     processed_time: {type: Date},
-    description: {type: String, required: false, validate: validators.description},
-    data: {type: Object, required: true}
-
+    scheduled_time: {type: Date},
+    error_time: {type: Date},
+    messages: [messageModel]
 });
 
-messageSchema.pre('save', function (next) {
+batchSchema.pre('save', function (next) {
 
     this.status = (this.status && this.status.match(/pending|scheduled/)) ? this.status : 'pending';
-    this.tries = 0;
     this.creation_time = new Date();
     this.scheduled_time = null;
     this.processing_time = null;
@@ -34,12 +28,12 @@ messageSchema.pre('save', function (next) {
 
 });
 
-messageSchema.pre('update', function (next) {
+batchSchema.pre('update', function (next) {
     this.update({}, {$set: {update_time: new Date()}});
     next();
 });
 
-var messageModel = mongoose.model('Message', messageSchema);
+var batchModel = mongoose.model('Batch', batchSchema);
 
 
-module.exports = messageModel;
+module.exports = batchModel;

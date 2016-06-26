@@ -35,14 +35,16 @@ app.use(authMiddleware.check);
 
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');
+var messageQueueRoutes = require('./routes/messageQueue');
 var batchRoutes = require('./routes/batches');
-var queueRoutes = require('./routes/queue');
+var batchQueueRoutes = require('./routes/batchQueue');
 
 
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
 app.use('/batches', batchRoutes);
-app.use('/queue', queueRoutes);
+app.use('/messageQueueRoutes', messageQueueRoutes);
+app.use('/batchQueueRoutes', batchQueueRoutes);
 
 
 ///  Error handling

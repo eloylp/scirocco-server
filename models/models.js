@@ -30,6 +30,7 @@ process.on('SIGINT', function () {
 
 
 exports.message = require('./message');
+exports.batch = require('./batch');
 
 
 

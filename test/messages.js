@@ -9,9 +9,7 @@ var model = require('../models/models');
 
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
-var path = '/messages';
 var config = require('../test/config');
-
 
 
 describe('Testing messages resource.', function () {
@@ -28,355 +26,103 @@ describe('Testing messages resource.', function () {
         });
     });
 
-    it("If no messages api will return empty array.", function (done) {
-
-        request.get(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .expect(200)
-            .expect('Content-Type', /json/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-                (res.body).should.be.an.instanceOf(Array).and.have.lengthOf(0);
-                done();
-            });
-    });
-
-    it("Post a message will be ok and must return created one.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-                (res.body).should.be.an.instanceOf(Object).and.have.property('data');
-                done();
-            });
-    });
-
-    it("Post a message without 'from header'. will get bad request.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            //.set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(400)
-            .expect('Content-Type', /json/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-                (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('from_node_id');
-                done();
-            });
-    });
-
-    it("Post a max message and recover it. Same data with _id expected. Other data will be null.",
+    it("If no messages api will return empty array.",
         function (done) {
 
-            request.post(path)
+            request.get(config.paths.messages)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
-                .send({
-                    to_node_id: "09af1",
-                    batch_id: "09af1",
-                    queue_id: "09af1",
-                    data: {name: "test"},
-                    type: "email",
-                    description: "description"
-                })
-                .expect(201)
-                .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
-                .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-
-                    var resp = res;
-
-                    request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
-                        .expect(200)
-                        .expect('Content-Type', /json/)
-                        .end(function (req, res) {
-                            (res.body).should.be.an.instanceOf(Object).and.have.property('_id');
-                            (res.body._id).should.be.exactly(resp.header.location.split("/").pop());
-                            (res.body.status).should.be.exactly("pending");
-                            (res.body.from_node_id).should.be.exactly("af123");
-                            (res.body.to_node_id).should.be.exactly("09af1");
-                            (res.body.type).should.be.exactly("email");
-                            (res.body.description).should.be.exactly("description");
-                            (res.body.batch_id).should.be.exactly("09af1");
-                            (res.body.queue_id).should.be.exactly("09af1");
-                            (res.body.tries).should.be.exactly(0);
-                            (res.body.data).should.be.instanceOf(Object).and.have.property('name');
-                            (res.body.data.name).should.be.exactly("test");
-                            done();
-                        });
-                });
-        });
-
-
-    it("Post a message with wrong status, may be always equal to pending.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "processing",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-
-                request.get(res.header.location)
-                    .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body.status).should.be.exactly("pending");
-                        done();
-                    });
-            });
-    });
-
-    it("Scheduled state is allowed in creation.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "scheduled",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-
-                request.get(res.header.location)
-                    .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body.status).should.be.exactly("scheduled");
-                        done();
-                    });
-            });
-    });
-
-    it("Pending state is allowed in creation.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-
-                request.get(res.header.location)
-                    .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body.status).should.be.exactly("pending");
-                        done();
-                    });
-            });
-    });
-
-    it("Post a message with no valid status is a bad request.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "pendinggggggggggggggggggggggggggggggggggggg",
-                data: {name: "test"},
-                type: "email"
-            })
-            .expect(400)
-            .expect('Content-Type', /json/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-                (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('status');
-                done();
-            });
-    });
-
-    it("System message fields are rewrited by app.", function (done) {
-
-        request.post(path)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email",
-
-                /// This fields are only for system.
-                tries: 23,
-                creation_time: new Date(),
-                update_time: new Date(),
-                scheduled_time: new Date(),
-                processing_time: new Date(),
-                error_time: new Date(),
-                processed_time: new Date()
-            })
-            .expect(201)
-            .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
-
-                request.get(res.header.location)
-                    .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (req, res) {
-                        (res.body.tries).should.be.exactly(0);
-                        (res.body.creation_time === null).should.be.true;
-                        (res.body.update_time === null).should.be.true;
-                        (res.body.scheduled_time === null).should.be.true;
-                        (res.body.processing_time === null).should.be.true;
-                        (res.body.error_time === null).should.be.true;
-                        (res.body.processed_time === null).should.be.true;
-                        done();
-                    });
-            });
-    });
-
-    it("Should update previously created message and return it modified.", function (done) {
-        var message = new model.message({
-            to_node_id: config.fromHeaderValue,
-            from_node_id: config.fromHeaderValue,
-            data: {"name": "tester", "love": true}
-        });
-        message.save(function (err, res) {
-
-            if (err) {
-                throw err;
-            }
-            request.patch(path + '/' + res.id)
-                .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
-                .send({
-                    "data": {
-                        "name": "tester2",
-                        "love": false
-                    }
-                })
                 .expect(200)
                 .expect('Content-Type', /json/)
                 .end(function (err, res) {
-
                     if (err) {
                         throw err;
                     }
-
-                    (res.body.data).should.be.an.instanceOf(Object).and.have.property('name');
-                    (res.body.data).should.be.an.instanceOf(Object).and.have.property('love');
-                    (res.body.data.name).should.be.equal("tester2");
-                    (res.body.data.love).should.be.false;
+                    (res.body).should.be.an.instanceOf(Array).and.have.lengthOf(0);
                     done();
-                })
+                });
         });
 
-    });
-    it("Should delete a message, only the one belongs/emit.", function (done) {
-
-        var toDeleteId = require('mongoose').Types.ObjectId();
-        var messages = [
-            {
-                _id: toDeleteId,
+    it("Should update previously created message and return it modified.",
+        function (done) {
+            var message = new model.message({
                 to_node_id: config.fromHeaderValue,
                 from_node_id: config.fromHeaderValue,
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            },
-            {
-                to_node_id: config.fromHeaderValue + "23",
-                from_node_id: config.fromHeaderValue + "23",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            }
-        ];
+                data: {"name": "tester", "love": true}
+            });
+            message.save(function (err, res) {
 
-        model.message.insertMany(messages, function (err, res) {
+                if (err) {
+                    throw err;
+                }
+                request.patch(config.paths.messages + '/' + res.id)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
+                    .send({
+                        "data": {
+                            "name": "tester2",
+                            "love": false
+                        }
+                    })
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
 
-            if (err) {
-                throw err;
-            }
+                        if (err) {
+                            throw err;
+                        }
 
-            request.delete(path + '/' + toDeleteId)
-                .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
-                .expect(200)
-                .expect('Content-Type', /json/)
-                .end(function (req, res) {
+                        (res.body.data).should.be.an.instanceOf(Object).and.have.property('name');
+                        (res.body.data).should.be.an.instanceOf(Object).and.have.property('love');
+                        (res.body.data.name).should.be.equal("tester2");
+                        (res.body.data.love).should.be.false;
+                        done();
+                    })
+            });
 
-                    (res.body.ok).should.be.true;
-                    (res.body.n).should.be.equal(1);
-                    done();
-                });
         });
-    });
+    it("Should delete a message, only the one belongs/emit.",
+        function (done) {
+
+            var toDeleteId = require('mongoose').Types.ObjectId();
+            var messages = [
+                {
+                    _id: toDeleteId,
+                    to_node_id: config.fromHeaderValue,
+                    from_node_id: config.fromHeaderValue,
+                    status: "pending",
+                    data: {name: "test"},
+                    type: "email"
+                },
+                {
+                    to_node_id: config.fromHeaderValue + "23",
+                    from_node_id: config.fromHeaderValue + "23",
+                    status: "pending",
+                    data: {name: "test"},
+                    type: "email"
+                }
+            ];
+
+            model.message.insertMany(messages, function (err, res) {
+
+                if (err) {
+                    throw err;
+                }
+
+                request.delete(config.paths.messages + '/' + toDeleteId)
+                    .set('Authorization', config.token)
+                    .set(config.fromHeader, config.fromHeaderValue)
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (req, res) {
+
+                        (res.body.ok).should.be.true;
+                        (res.body.n).should.be.equal(1);
+                        done();
+                    });
+            });
+        });
+
     it("Should remove all the messages only for present node",
         function (done) {
 
@@ -411,7 +157,7 @@ describe('Testing messages resource.', function () {
                     throw err;
                 }
 
-                request.delete(path)
+                request.delete(config.paths.messages)
                     .set('Authorization', config.token)
                     .set(config.fromHeader, config.fromHeaderValue)
                     .expect(200)

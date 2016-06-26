@@ -31,15 +31,15 @@ describe('Testing batch resource.', function () {
 
         var batch1 = [
             {
-                to_node_id: "",
+                to_node_id: config.fromHeaderValue,
                 data: {test: "testing"}
             },
             {
-                to_node_id: "",
+                to_node_id: config.fromHeaderValue,
                 data: {test: "testing"}
             },
             {
-                to_node_id: "",
+                to_node_id: config.fromHeaderValue,
                 data: {test: "testing"}
             }
         ];
@@ -50,11 +50,11 @@ describe('Testing batch resource.', function () {
             .set('Content-Type', 'application/json')
             .send(batch1)
             .expect(201)
-            .expect('Location',/\/batch\/[0-9a-f]/)
-            .end(function(err, res){
+            .expect('Location', /\/batch\/[0-9a-f]/)
+            .end(function (err, res) {
 
                 (res.body).should.be.instanceOf(Object);
-                (res.body.batch_id).should.be.equal(res.header.location.split("/")[2]);
+                (res.body.batch_id).should.be.equal(res.header.location.split("/").pop());
                 (res.body.message_num).should.be.exactly(3)
                 (res.body.messages).should.be.instanceOf(Array);
                 (res.body.n).sould.be.equal(3);
@@ -62,11 +62,41 @@ describe('Testing batch resource.', function () {
             });
     });
 
-    it("Should return all batches pendient for actual node", function(done){
-
-        
+    it("Should return all batches pendient for actual node. ", function (done) {
 
 
+        var batches = [
+            [
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                },
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                },
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                }
+            ],
+            [
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                },
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                },
+                {
+                    to_node_id: config.fromHeaderValue,
+                    data: {test: "testing"}
+                }
+            ]
+        ];
+
+        model.batch.insertMany()
 
 
     });
