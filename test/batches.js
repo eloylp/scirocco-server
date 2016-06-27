@@ -52,13 +52,9 @@ describe('Testing batches resource.', function () {
                     status: "pending",
                     messages: [
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
                             data: {"name": "tester", "love": true}
                         },
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
                             data: {"name": "tester", "love": false}
                         }
                     ]
@@ -75,19 +71,13 @@ describe('Testing batches resource.', function () {
                         status: "scheduled",
                         messages: [
                             {
-                                to_node_id: config.fromHeaderValue,
-                                from_node_id: config.fromHeaderValue,
-                                data: {"name": "changed1", "love": false}
+                                data: {name: "changed1", love: false}
                             },
                             {
-                                to_node_id: config.fromHeaderValue,
-                                from_node_id: config.fromHeaderValue,
-                                data: {"name": "changed2", "love": false}
+                                data: {name: "changed2", love: false}
                             },
                             {
-                                to_node_id: config.fromHeaderValue,
-                                from_node_id: config.fromHeaderValue,
-                                data: {"name": "changed3", "love": false}
+                                data: {name: "changed3", love: false}
                             }
                         ]
                     })
@@ -108,68 +98,29 @@ describe('Testing batches resource.', function () {
                         (res.body.messages[2].data.name).should.be.equal('changed3');
                         (res.body.messages[2].data.love).should.be.false;
                         done();
-                    })
+                    });
             });
         });
 
-    it("Should delete a batch, only the one belongs/emit.",
+    it("Should delete a batch .",
         function (done) {
 
             var toDeleteId = require('mongoose').Types.ObjectId();
-            var batches = [
-                {
-                    _id: toDeleteId,
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue + 233,
-                    messages: [
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": true}
-                        },
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": false}
-                        }
-                    ]
-                },
-                {
-                    _id: toDeleteId,
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
-                    messages: [
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": true}
-                        },
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": false}
-                        }
-                    ]
-                },
-                {
-                    to_node_id: config.fromHeaderValue + 23,
-                    from_node_id: config.fromHeaderValue + 23,
-                    messages: [
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": true}
-                        },
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": false}
-                        }
-                    ]
-                }
-            ];
 
-            model.batch.insertMany(batches, function (err, res) {
+            var batch = new model.batch({
+                _id: toDeleteId,
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
+            });
+            batch.save(function (err, res) {
 
                 if (err) {
                     throw err;
@@ -198,46 +149,45 @@ describe('Testing batches resource.', function () {
                     from_node_id: config.fromHeaderValue,
                     messages: [
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
                             data: {"name": "tester", "love": true}
                         },
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": false}
-                        }
-                    ]
-                },
-                {
-                    _id: toDeleteId,
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
-                    messages: [
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
-                            data: {"name": "tester", "love": true}
-                        },
-                        {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
                             data: {"name": "tester", "love": false}
                         }
                     ]
                 },
                 {
                     to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
+                    from_node_id: config.fromHeaderValue + 23,
                     messages: [
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
                             data: {"name": "tester", "love": true}
                         },
                         {
-                            to_node_id: config.fromHeaderValue,
-                            from_node_id: config.fromHeaderValue,
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
+                },
+                {
+                    to_node_id: config.fromHeaderValue + 23,
+                    from_node_id: config.fromHeaderValue,
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
+                },
+                {
+                    to_node_id: config.fromHeaderValue + 23,
+                    from_node_id: config.fromHeaderValue + 23,
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
                             data: {"name": "tester", "love": false}
                         }
                     ]

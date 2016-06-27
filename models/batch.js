@@ -7,16 +7,24 @@ var batchSchema = new mongoose.Schema({
     from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
     creation_time: {type: Date},
+    tries: {type: Number, index: true, validate: validators.integerUnsigned},
     processing_time: {type: Date},
     processed_time: {type: Date},
     scheduled_time: {type: Date},
     error_time: {type: Date},
-    messages: []  /* TODO CALL MESSAGE MODEL.   */
+    messages: [
+        {
+            type: {type: String, required: false},
+            data: {type: Object, required: true},
+            description: {type: String, required: false}
+        }
+    ]
 });
 
 batchSchema.pre('save', function (next) {
 
     this.status = (this.status && this.status.match(/pending|scheduled/)) ? this.status : 'pending';
+    this.tries = 0;
     this.creation_time = new Date();
     this.scheduled_time = null;
     this.processing_time = null;

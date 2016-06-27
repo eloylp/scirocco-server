@@ -24,7 +24,6 @@ exports.update = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
 
-    console.log(req.body);
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,

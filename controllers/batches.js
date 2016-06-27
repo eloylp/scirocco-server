@@ -27,7 +27,7 @@ exports.show = function (req, res) {
     models.batch
         .findOne(
             {
-                _id: req.params.message_id,
+                _id: req.params.batch_id,
                 $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
             }
         )
@@ -49,10 +49,9 @@ exports.update = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
 
-    console.log(req.body);
     models.batch.findOneAndUpdate(
         {
-            _id: req.params.message_id,
+            _id: req.params.batch_id,
             $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
         },
         req.body,
@@ -72,7 +71,7 @@ exports.delete = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['dds_node_id_header'];
     models.batch.remove({
-            _id: req.params.message_id,
+            _id: req.params.batch_id,
             $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
         },
         function (err, results) {
