@@ -210,7 +210,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    /*it("Push a batch and recover it. Same data for messages expected. Other data will be null.",
+    it("Push a batch and recover it. Same data for messages expected. Other data will be null.",
         function (done) {
 
             request.post(config.paths.batchQueue)
@@ -229,7 +229,7 @@ describe('Testing batchQueue resource.', function () {
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
+                .expect('Location', /\/batches\/[0-9a-f]/)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
@@ -247,21 +247,19 @@ describe('Testing batchQueue resource.', function () {
                             (res.body._id).should.be.exactly(resp.header.location.split("/").pop());
                             (res.body.status).should.be.exactly("pending");
                             (res.body.from_node_id).should.be.exactly("af123");
-                            (res.body.to_node_id).should.be.exactly("09af1");
-                            (res.body.type).should.be.exactly("email");
-                            (res.body.description).should.be.exactly("description");
-                            (res.body.group_id).should.be.exactly("09af1");
-                            (res.body.queue_id).should.be.exactly("09af1");
+                            (res.body.to_node_id).should.be.exactly("af123");
                             (res.body.tries).should.be.exactly(0);
-                            (res.body.data).should.be.instanceOf(Object).and.have.property('name');
-                            (res.body.data.name).should.be.exactly("test");
+                            (res.body.messages[0].data).should.be.instanceOf(Object).and.have.property('name');
+                            (res.body.messages[0].data).should.be.instanceOf(Object).and.have.property('love');
+                            (res.body.messages[1].data).should.be.instanceOf(Object).and.have.property('name');
+                            (res.body.messages[1].data).should.be.instanceOf(Object).and.have.property('love');
                             done();
                         });
                 });
         });
 
 
-    it("Push a message with wrong status, may be always equal to pending.",
+    /*it("Push a message with wrong status, may be always equal to pending.",
         function (done) {
 
             request.post(config.paths.batchQueue)
