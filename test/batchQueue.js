@@ -28,24 +28,36 @@ describe('Testing batchQueue resource.', function () {
 
     it("Should pull a message from queue. Must return it in processing state.", function (done) {
 
-        var messages = [
+        var batches = [
             {
                 to_node_id: config.fromHeaderValue,
                 from_node_id: config.fromHeaderValue,
                 status: "pending",
-                data: {name: "test"},
-                type: "email"
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             },
             {
                 to_node_id: config.fromHeaderValue,
                 from_node_id: config.fromHeaderValue,
                 status: "pending",
-                data: {name: "test"},
-                type: "email"
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             }
         ];
 
-        model.batch.insertMany(messages);
+        model.batch.insertMany(batches);
 
         request.get(config.paths.batchQueue)
             .set('Authorization', config.token)
@@ -57,6 +69,7 @@ describe('Testing batchQueue resource.', function () {
                 if (err) {
                     throw err;
                 }
+                (res.body).should.be.instanceOf(Object);
                 (res.body.to_node_id).should.be.equal(config.fromHeaderValue);
                 (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
                 (res.body.status).should.be.equal('processing');
@@ -70,20 +83,23 @@ describe('Testing batchQueue resource.', function () {
             .set('Authorization', config.token)
             .set(config.fromHeader, config.fromHeaderValue)
             .send({
-                to_node_id: "09af1",
-                data: {name: "test"},
-                type: "email"
+                to_node_id: config.fromHeaderValue,
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             })
             .expect('Content-Type', /json/)
             .expect('Location', /\/messages\/[0-9a-f]/)
             .expect(201)
             .end(function (err, res) {
 
+                (res.body).should.be.instanceOf(Object);
                 (res.body.status).should.be.equal('pending');
-                (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
-                (res.body.data).should.be.instanceOf(Object);
-                (res.body.type).should.be.equal('email');
-                (res.body.to_node_id).should.be.equal('09af1');
                 done();
             });
     });
@@ -97,7 +113,14 @@ describe('Testing batchQueue resource.', function () {
             .set(config.fromHeader, config.fromHeaderValue)
             .send({
                 to_node_id: config.fromHeaderValue,
-                data: {"name": "tester"}
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             })
             .end(function (err, res) {
 
@@ -135,19 +158,25 @@ describe('Testing batchQueue resource.', function () {
             .set('Authorization', config.token)
             .set(config.fromHeader, config.fromHeaderValue)
             .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
+                to_node_id: config.fromHeaderValue,
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             })
             .expect(201)
             .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
+            .expect('Location', /\/batches\/[0-9a-f]/)
             .end(function (err, res) {
                 if (err) {
                     throw err;
                 }
-                (res.body).should.be.an.instanceOf(Object).and.have.property('data');
+                (res.body.messages[0]).should.be.an.instanceOf(Object).and.have.property('data');
+                (res.body.messages[1]).should.be.an.instanceOf(Object).and.have.property('data');
                 (res.body._id).should.be.equal(res.header.location.split("/").pop());
                 done();
             });
@@ -159,10 +188,15 @@ describe('Testing batchQueue resource.', function () {
             .set('Authorization', config.token)
             //.set(config.fromHeader, config.fromHeaderValue)
             .send({
-                to_node_id: "09af1",
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
+                to_node_id: config.fromHeaderValue,
+                messages: [
+                    {
+                        data: {"name": "tester", "love": true}
+                    },
+                    {
+                        data: {"name": "tester", "love": false}
+                    }
+                ]
             })
             .expect(400)
             .expect('Content-Type', /json/)
@@ -176,19 +210,22 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Push a max message and recover it. Same data with _id expected. Other data will be null.",
+    /*it("Push a batch and recover it. Same data for messages expected. Other data will be null.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
-                    group_id: "09af1",
-                    queue_id: "09af1",
-                    data: {name: "test"},
-                    type: "email",
-                    description: "description"
+                    to_node_id: config.fromHeaderValue,
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -389,5 +426,5 @@ describe('Testing batchQueue resource.', function () {
                             done();
                         });
                 });
-        });
+        });*/
 });
