@@ -6,8 +6,8 @@ module.exports = {
     fromHeaderValue: "af123",
     paths: {
         messages: "/messages",
-        messageQueue: "/messageQueueRoutes",
+        messageQueue: "/messageQueue",
         batches: "/batches",
-        batchQueue: "/batchQueueRoutes"
+        batchQueue: "/batchQueue"
     }
 };

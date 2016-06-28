@@ -26,7 +26,7 @@ describe('Testing batches resource.', function () {
         });
     });
 
-    it("If no batches api will return empty array.",
+    it("Should return an empty array if no batches.",
         function (done) {
 
             request.get(config.paths.batches)
@@ -102,7 +102,7 @@ describe('Testing batches resource.', function () {
             });
         });
 
-    it("Should delete a batch .",
+    it("Should delete a batch.",
         function (done) {
 
             var toDeleteId = require('mongoose').Types.ObjectId();
@@ -140,7 +140,7 @@ describe('Testing batches resource.', function () {
             });
         });
 
-    it("Should remove all the messages only for present node",
+    it("Should remove all the batches only for registered node.",
         function (done) {
 
             var batches = [

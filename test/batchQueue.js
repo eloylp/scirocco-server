@@ -26,7 +26,7 @@ describe('Testing batchQueue resource.', function () {
         });
     });
 
-    it("Should pull a message from queue. Must return it in processing state.", function (done) {
+    it("Should one message from queue. Must return it in processing state.", function (done) {
 
         var batches = [
             {
@@ -77,7 +77,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Should push a message to queue, and return it in pending state.", function (done) {
+    it("Should push a batch to queue, and return it in pending state.", function (done) {
 
         request.post(config.paths.batchQueue)
             .set('Authorization', config.token)
@@ -94,7 +94,7 @@ describe('Testing batchQueue resource.', function () {
                 ]
             })
             .expect('Content-Type', /json/)
-            .expect('Location', /\/messages\/[0-9a-f]/)
+            .expect('Location', /\/batches\/[0-9a-f]/)
             .expect(201)
             .end(function (err, res) {
 
@@ -104,7 +104,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Should ack an existing message as processed.", function (done) {
+    it("Should ack an existing batch as processed.", function (done) {
 
         /// Post the message.
         request.post(config.paths.batchQueue)
@@ -152,7 +152,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Push a message will be ok and must return created one.", function (done) {
+    it("Should push a batch and must return created one.", function (done) {
 
         request.post(config.paths.batchQueue)
             .set('Authorization', config.token)
@@ -182,7 +182,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Push a message without 'from header'. will get bad request.", function (done) {
+    it("Should get bad request when pushing a batch without 'from header'.", function (done) {
 
         request.post(config.paths.batchQueue)
             .set('Authorization', config.token)
@@ -210,7 +210,7 @@ describe('Testing batchQueue resource.', function () {
             });
     });
 
-    it("Push a batch and recover it. Same data for messages expected. Other data will be null.",
+    it("Should push a batch and recover it. Same data for messages expected. Other data will be null.",
         function (done) {
 
             request.post(config.paths.batchQueue)
@@ -259,21 +259,27 @@ describe('Testing batchQueue resource.', function () {
         });
 
 
-    /*it("Push a message with wrong status, may be always equal to pending.",
+    it("Should push a batch with wrong status, returning batch status may be always equal to pending.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
+                    to_node_id: config.fromHeaderValue,
                     status: "processing",
-                    data: {name: "test"},
-                    type: "email"
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
+                .expect('Location', /\/batches\/[0-9a-f]/)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
@@ -291,21 +297,27 @@ describe('Testing batchQueue resource.', function () {
                 });
         });
 
-    it("Scheduled state is allowed in message push.",
+    it("Should allow scheduled state in batch push.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
+                    to_node_id: config.fromHeaderValue,
                     status: "scheduled",
-                    data: {name: "test"},
-                    type: "email"
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
+                .expect('Location', /\/batches\/[0-9a-f]/)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
@@ -323,21 +335,27 @@ describe('Testing batchQueue resource.', function () {
                 });
         });
 
-    it("Pending state is allowed in message push.",
+    it("Should allow pending state in batch push.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
+                    to_node_id: config.fromHeaderValue,
                     status: "pending",
-                    data: {name: "test"},
-                    type: "email"
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
+                .expect('Location', /\/batches\/[0-9a-f]/)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
@@ -355,17 +373,23 @@ describe('Testing batchQueue resource.', function () {
                 });
         });
 
-    it("Push a message with no valid status is a bad request.",
+    it("Should return a bad request when no valid batch status is sent.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
-                    status: "pendinggggggggggggggggggggggggggggggggggggg",
-                    data: {name: "test"},
-                    type: "email"
+                    to_node_id: config.fromHeaderValue,
+                    status: "pendinggggggggggggggggggg",
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(400)
                 .expect('Content-Type', /json/)
@@ -379,17 +403,15 @@ describe('Testing batchQueue resource.', function () {
                 });
         });
 
-    it("System message fields are rewrited by app.",
+    it("Should rewrite batch fields that are part of system.",
         function (done) {
 
             request.post(config.paths.batchQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
-                    to_node_id: "09af1",
-                    status: "pending",
-                    data: {name: "test"},
-                    type: "email",
+
+                    to_node_id: config.fromHeaderValue,
 
                     /// This fields are only for system.
                     tries: 23,
@@ -398,11 +420,19 @@ describe('Testing batchQueue resource.', function () {
                     scheduled_time: new Date(),
                     processing_time: new Date(),
                     error_time: new Date(),
-                    processed_time: new Date()
+                    processed_time: new Date(),
+                    messages: [
+                        {
+                            data: {"name": "tester", "love": true}
+                        },
+                        {
+                            data: {"name": "tester", "love": false}
+                        }
+                    ]
                 })
                 .expect(201)
                 .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
+                .expect('Location', /\/batches\/[0-9a-f]/)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
@@ -424,5 +454,5 @@ describe('Testing batchQueue resource.', function () {
                             done();
                         });
                 });
-        });*/
+        });
 });

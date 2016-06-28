@@ -43,8 +43,8 @@ var batchQueueRoutes = require('./routes/batchQueue');
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
 app.use('/batches', batchRoutes);
-app.use('/messageQueueRoutes', messageQueueRoutes);
-app.use('/batchQueueRoutes', batchQueueRoutes);
+app.use('/messageQueue', messageQueueRoutes);
+app.use('/batchQueue', batchQueueRoutes);
 
 
 ///  Error handling

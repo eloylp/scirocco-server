@@ -26,7 +26,7 @@ describe('Testing messageQueue resource.', function () {
         });
     });
 
-    it("Should pull a message from queue. Must return it in processing state.", function (done) {
+    it("Should pull one message from queue. Must return it in processing state.", function (done) {
 
         var messages = [
             {
@@ -45,23 +45,28 @@ describe('Testing messageQueue resource.', function () {
             }
         ];
 
-        model.message.insertMany(messages);
+        model.message.insertMany(messages, function (err, res) {
 
-        request.get(config.paths.messageQueue)
-            .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
-            .expect('Content-Type', /json/)
-            .expect(200)
-            .end(function (err, res) {
+            if (err) {
+                throw err;
+            }
 
-                if (err) {
-                    throw err;
-                }
-                (res.body.to_node_id).should.be.equal(config.fromHeaderValue);
-                (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
-                (res.body.status).should.be.equal('processing');
-                done();
-            });
+            request.get(config.paths.messageQueue)
+                .set('Authorization', config.token)
+                .set(config.fromHeader, config.fromHeaderValue)
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .end(function (err, res) {
+
+                    if (err) {
+                        throw err;
+                    }
+                    (res.body.to_node_id).should.be.equal(config.fromHeaderValue);
+                    (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
+                    (res.body.status).should.be.equal('processing');
+                    done();
+                });
+        });
     });
 
     it("Should push a message to queue, and return it in pending state.", function (done) {
@@ -129,7 +134,7 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Push a message will be ok and must return created one.", function (done) {
+    it("Should push a message and return the created one.", function (done) {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
@@ -153,7 +158,7 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Push a message without 'from header'. will get bad request.", function (done) {
+    it("Should get bad request when pushing a message without 'from header'.", function (done) {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
@@ -176,7 +181,7 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Push a max message and recover it. Same data with _id expected. Other data will be null.",
+    it("Should return same data with correct _id when a complete message is pushed. Other data must be null.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -224,7 +229,7 @@ describe('Testing messageQueue resource.', function () {
         });
 
 
-    it("Push a message with wrong status, may be always equal to pending.",
+    it("Should return a pending message status when pushing a message with wrong status.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -256,7 +261,7 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Scheduled state is allowed in message push.",
+    it("Should accept scheduled state in message push.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -288,7 +293,7 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Pending state is allowed in message push.",
+    it("Should accept pending state in message push.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -320,7 +325,7 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Push a message with no valid status is a bad request.",
+    it("Should return bad request 400 when pushing a message with no valid status.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -344,7 +349,7 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("System message fields are rewrited by app.",
+    it("Should rewrite system message fields when a message try to cover them.",
         function (done) {
 
             request.post(config.paths.messageQueue)

@@ -26,7 +26,7 @@ describe('Testing messages resource.', function () {
         });
     });
 
-    it("If no messages api will return empty array.",
+    it("Should return an empty array when ther arent messages.",
         function (done) {
 
             request.get(config.paths.messages)
