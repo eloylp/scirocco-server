@@ -6,7 +6,7 @@ var messageSchema = new mongoose.Schema({
     to_node_id: {type: String, index: true, required:true, validate: validators.hexadecimal},
     from_node_id: {type: String, index: true, required: true, validate: validators.hexadecimal},
     queue_id: {type: String, index: true, validate: validators.hexadecimal},
-    group_id: {type: String, index: true, validate: validators.hexadecimal},
+    group_id: {type: String, index: true, required:false, validate: validators.uuid},
     type: {type: String, required: false, index: true},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
     tries: {type: Number, index: true, validate: validators.integerUnsigned},

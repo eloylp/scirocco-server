@@ -10,6 +10,7 @@ var model = require('../models/models');
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
 var config = require('../test/config');
+var uuid = require('node-uuid');
 
 
 describe('Testing messageQueue resource.', function () {
@@ -69,6 +70,110 @@ describe('Testing messageQueue resource.', function () {
         });
     });
 
+    it("Should pull a group of messages from queue.", function (done) {
+
+        var messages = [
+            {
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            },
+            {
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            }
+        ];
+
+        model.message.insertMany(messages, function (err, res) {
+
+            if (err) {
+                throw err;
+            }
+
+            request.get(config.paths.messageQueue)
+                .set('Authorization', config.token)
+                .set('Content-Type', 'application/json')
+                .set(config.fromHeader, config.fromHeaderValue)
+                .expect(200)
+                .query({
+                    quantity: 2
+                })
+                .end(function (err, res) {
+
+                    if (err) {
+                        throw err;
+                    }
+
+                    (res.body).should.be.instanceOf(Array);
+                    (res.body.length).should.be.equal(2);
+
+                    for (var m in res.body) {
+
+                        var message = res.body[m];
+
+                        (message.status).should.be.equal('processing');
+                        (message.to_node_id).should.be.equal(config.fromHeaderValue);
+                        (message.from_node_id).should.be.equal(config.fromHeaderValue);
+                        (message).should.have.property("group_id");
+                        (message.group_id.length).should.be.equal(36);
+                        (message.data).should.be.instanceOf(Object);
+                        (message.data).should.have.property("name").and.have.valueOf("test");
+                    }
+                    done();
+                });
+        });
+
+    });
+
+    it("Should ack a group of message previously pulled. All of them.", function (done) {
+
+        var group_id = uuid.v4();
+        var messages = [
+            {
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
+                group_id: group_id,
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            },
+            {
+                to_node_id: config.fromHeaderValue,
+                from_node_id: config.fromHeaderValue,
+                group_id: group_id,
+                status: "pending",
+                data: {name: "test"},
+                type: "email"
+            }
+        ];
+
+        model.message.insertMany(messages, function (err, res) {
+
+            if (err) {
+                throw err;
+            }
+
+            request.patch(config.paths.messageQueue + '/' + group_id + '/ack')
+                .set('Authorization', config.token)
+                .set('Content-Type', 'application/json')
+                .set(config.fromHeader, config.fromHeaderValue)
+                .expect(200)
+                .end(function (err, res) {
+
+                    (res.body).should.be.instanceOf(Object);
+                    (res.body.ok).should.be.true;
+                    (res.body.n).should.be.equal(2);
+                    (res.body.nModified).should.be.equal(2);
+                    done();
+                });
+        });
+    });
+
     it("Should push a message to queue, and return it in pending state.", function (done) {
 
         request.post(config.paths.messageQueue)
@@ -84,6 +189,7 @@ describe('Testing messageQueue resource.', function () {
             .expect(201)
             .end(function (err, res) {
 
+                (res.body).should.be.instanceOf(Object);
                 (res.body.status).should.be.equal('pending');
                 (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
                 (res.body.data).should.be.instanceOf(Object);
@@ -184,12 +290,14 @@ describe('Testing messageQueue resource.', function () {
     it("Should return same data with correct _id when a complete message is pushed. Other data must be null.",
         function (done) {
 
+            var group_id = uuid.v4();
+
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
                 .send({
                     to_node_id: "09af1",
-                    group_id: "09af1",
+                    group_id: group_id,
                     queue_id: "09af1",
                     data: {name: "test"},
                     type: "email",
@@ -218,7 +326,7 @@ describe('Testing messageQueue resource.', function () {
                             (res.body.to_node_id).should.be.exactly("09af1");
                             (res.body.type).should.be.exactly("email");
                             (res.body.description).should.be.exactly("description");
-                            (res.body.group_id).should.be.exactly("09af1");
+                            (res.body.group_id).should.be.exactly(group_id);
                             (res.body.queue_id).should.be.exactly("09af1");
                             (res.body.tries).should.be.exactly(0);
                             (res.body.data).should.be.instanceOf(Object).and.have.property('name');

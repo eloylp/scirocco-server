@@ -57,3 +57,11 @@ exports.hexadecimal = [
         message: "Field must be in hexadecimal."
     })
 ];
+
+exports.uuid = [
+    validate({
+        validator: "isUUID",
+        passIfEmpty: true,
+        message: "Field must be UUID format v3, v4, v4."
+    })
+];
