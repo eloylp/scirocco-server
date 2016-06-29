@@ -1,5 +1,4 @@
 var models = require('../models/models');
-var uuid = require('node-uuid');
 
 
 exports.index = function (req, res, next) {
