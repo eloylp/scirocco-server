@@ -15,7 +15,12 @@ exports.index = function (req, res, next) {
             if (err) {
                 next(err);
             }
-            res.json(result);
+            if(result.length == 0){
+                res.status(204);
+                res.end();
+            }else{
+                res.json(result);
+            }
         });
 };
 

@@ -13,7 +13,12 @@ exports.queuePull = function (req, res, next) {
             if (err) {
                 next(err);
             }
-            res.json(result);
+            if(!result){
+                res.status(204);
+                res.end()
+            }else {
+                res.json(result);
+            }
         });
 };
 

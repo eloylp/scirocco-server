@@ -26,6 +26,23 @@ describe('Testing batchQueue resource.', function () {
         });
     });
 
+    it("Should return an empty object and a 204 status code if no batch remaining.", function(done){
+
+        request.get(config.paths.batchQueue)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
+            .expect(204)
+            .end(function (err, res) {
+
+                if (err) {
+                    throw err;
+                }
+                (res.body).should.be.instanceOf(Object);
+                done();
+            });
+
+    });
+
     it("Should one message from queue. Must return it in processing state.", function (done) {
 
         var batches = [
