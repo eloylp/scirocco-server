@@ -26,19 +26,18 @@ describe('Testing messages resource.', function () {
         });
     });
 
-    it("Should return an empty array when ther arent messages.",
+    it("Should return an empty object and a 204 status code if no messages found.",
         function (done) {
 
             request.get(config.paths.messages)
                 .set('Authorization', config.token)
                 .set(config.fromHeader, config.fromHeaderValue)
-                .expect(200)
-                .expect('Content-Type', /json/)
+                .expect(204)
                 .end(function (err, res) {
                     if (err) {
                         throw err;
                     }
-                    (res.body).should.be.an.instanceOf(Array).and.have.lengthOf(0);
+                    (res.body).should.be.an.instanceOf(Object);
                     done();
                 });
         });

@@ -26,22 +26,20 @@ describe('Testing batches resource.', function () {
         });
     });
 
-    it("Should return an empty array if no batches.",
-        function (done) {
+    it("Should return an empty object and a 204 status code if no batch found.", function(done){
 
-            request.get(config.paths.batches)
-                .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
-                .expect(200)
-                .expect('Content-Type', /json/)
-                .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-                    (res.body).should.be.an.instanceOf(Array).and.have.lengthOf(0);
-                    done();
-                });
-        });
+        request.get(config.paths.batches)
+            .set('Authorization', config.token)
+            .set(config.fromHeader, config.fromHeaderValue)
+            .expect(204)
+            .end(function (err, res) {
+                if (err) {
+                    throw err;
+                }
+                (res.body).should.be.an.instanceOf(Object);
+                done();
+            });
+    });
 
     it("Should update previously created batch and return it modified.",
         function (done) {
