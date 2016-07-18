@@ -27,7 +27,7 @@ describe('Testing messageQueue resource.', function () {
         });
     });
 
-    it("Should return an empty object and a 204 status code if no message remaining.", function (done) {
+    it("Should return an empty object and a 204 status code if no messages remaining.", function (done) {
 
         request.get(config.paths.messageQueue)
             .set(config.fromHeader, config.fromHeaderValue)
@@ -146,7 +146,7 @@ describe('Testing messageQueue resource.', function () {
 
     });
 
-    it("Should ack a group of message previously pulled. All of them.", function (done) {
+    it("Should ack a group of messages previously pulled. All of them.", function (done) {
 
         var group_id = uuid.v4();
         var messages = [

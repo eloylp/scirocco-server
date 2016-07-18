@@ -122,7 +122,7 @@ describe('Testing messages resource.', function () {
             });
         });
 
-    it("Should remove all the messages only for present node",
+    it("Should remove all the messages only for present node.",
         function (done) {
 
             var messages = [
