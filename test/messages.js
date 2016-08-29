@@ -44,7 +44,6 @@ describe('Testing messages resource.', function () {
 
     it("Should update previously created message and return it modified.",
 
-        // TODO CONTINUE HERE ....
         function (done) {
             var message = new model.message({
                 to: config.from_header_value,
@@ -71,8 +70,7 @@ describe('Testing messages resource.', function () {
                             throw err;
                         }
 
-                        console.log(res.headers);
-
+                        (res.headers).should.have.ownProperty(config.update_header.toLowerCase());
                         (res.body).should.be.an.instanceOf(Object).and.have.property('name');
                         (res.body).should.be.an.instanceOf(Object).and.have.property('love');
                         (res.body.name).should.be.equal("tester2");
@@ -89,18 +87,16 @@ describe('Testing messages resource.', function () {
             var messages = [
                 {
                     _id: toDeleteId,
-                    to_node_id: config.from_header_value,
-                    from_node_id: config.from_header_value,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 },
                 {
-                    to_node_id: config.from_header_value + "23",
-                    from_node_id: config.from_header_value + "23",
+                    to: config.from_header_value + "23",
+                    from: config.from_header_value + "23",
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 }
             ];
 
@@ -129,27 +125,24 @@ describe('Testing messages resource.', function () {
 
             var messages = [
                 {
-                    to_node_id: config.from_header_value,
-                    from_node_id: config.from_header_value,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
-                    data: {name: "test"},
-                    type: "email"
+                    data: {name: "test"}
                 },
                 {
-                    to_node_id: config.from_header_value,
-                    from_node_id: config.from_header_value,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
-                    data: {name: "test"},
-                    type: "email"
+                    data: {name: "test"}
                 },
                 /// This message must not be deleted, because it not belongs or emitted
                 /// to testing node.
                 {
-                    to_node_id: config.from_header_value + "23",
-                    from_node_id: config.from_header_value + "23",
+                    to: config.from_header_value + "23",
+                    from: config.from_header_value + "23",
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 }
             ];
 

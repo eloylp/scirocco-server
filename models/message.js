@@ -31,7 +31,7 @@ messageSchema.pre('save', function (next) {
 
 });
 
-messageSchema.pre('update', function (next) {
+messageSchema.pre('findOneAndUpdate', function (next) {
     this.update({}, {$set: {update_time: new Date()}});
     next();
 });

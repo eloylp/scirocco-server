@@ -79,7 +79,7 @@ exports.delete = function (req, res, next) {
     var node_id_header = req.app.get('config')['from_header'];
     models.message.remove({
             _id: req.params.message_id,
-            $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
+            $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
         },
         function (err, results) {
             if (err) {
@@ -93,7 +93,7 @@ exports.delete = function (req, res, next) {
 exports.deleteAll = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['from_header'];
-    models.message.remove({$or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]},
+    models.message.remove({$or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]},
         function (err, results) {
             if (err) {
                 next(err);
