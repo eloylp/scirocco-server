@@ -1,9 +1,10 @@
 var models = require('../models/models');
+var outPutTreatement = require('../models/outputAdapter');
 
 
 exports.index = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     var max_config_limit = req.app.get('config')['max_pull_messages_allowed'];
     var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
 
@@ -27,21 +28,23 @@ exports.index = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
 
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,
-            $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
+            $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
         },
-        req.body,
+        {data: req.body},
         {runValidators: true, new: true},
         function (err, results) {
 
             if (err) {
                 next(err);
             } else {
-                res.json(results);
+
+                res.status(200);
+                outPutTreatement.output(res, results, req.app.get('config')['header_prefix']);
             }
         });
 };
@@ -49,7 +52,7 @@ exports.update = function (req, res, next) {
 
 exports.show = function (req, res) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     models.message
         .findOne(
             {
@@ -73,7 +76,7 @@ exports.show = function (req, res) {
 
 exports.delete = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     models.message.remove({
             _id: req.params.message_id,
             $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
@@ -89,7 +92,7 @@ exports.delete = function (req, res, next) {
 
 exports.deleteAll = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     models.message.remove({$or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]},
         function (err, results) {
             if (err) {

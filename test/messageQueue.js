@@ -30,7 +30,7 @@ describe('Testing messageQueue resource.', function () {
     it("Should return an empty object and a 204 status code if no messages remaining.", function (done) {
 
         request.get(config.paths.messageQueue)
-            .set(config.fromHeader, config.fromHeaderValue)
+            .set(config.from_header, config.from_header_value)
             .set('Authorization', config.token)
             .expect(204)
             .end(function (err, res) {
@@ -47,15 +47,15 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
             },
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -70,7 +70,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.get(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .end(function (err, res) {
@@ -78,8 +78,8 @@ describe('Testing messageQueue resource.', function () {
                     if (err) {
                         throw err;
                     }
-                    (res.body.to_node_id).should.be.equal(config.fromHeaderValue);
-                    (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
+                    (res.body.to_node_id).should.be.equal(config.from_header_value);
+                    (res.body.from_node_id).should.be.equal(config.from_header_value);
                     (res.body.status).should.be.equal('processing');
                     done();
                 });
@@ -90,15 +90,15 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
             },
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -114,7 +114,7 @@ describe('Testing messageQueue resource.', function () {
             request.get(config.paths.messageQueue)
                 .set('Authorization', config.token)
                 .set('Content-Type', 'application/json')
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .expect(200)
                 .query({
                     quantity: 2
@@ -133,8 +133,8 @@ describe('Testing messageQueue resource.', function () {
                         var message = res.body[m];
 
                         (message.status).should.be.equal('processing');
-                        (message.to_node_id).should.be.equal(config.fromHeaderValue);
-                        (message.from_node_id).should.be.equal(config.fromHeaderValue);
+                        (message.to_node_id).should.be.equal(config.from_header_value);
+                        (message.from_node_id).should.be.equal(config.from_header_value);
                         (message).should.have.property("group_id");
                         (message.group_id.length).should.be.equal(36);
                         (message.data).should.be.instanceOf(Object);
@@ -151,16 +151,16 @@ describe('Testing messageQueue resource.', function () {
         var group_id = uuid.v4();
         var messages = [
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 group_id: group_id,
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
             },
             {
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
+                from_node_id: config.from_header_value,
                 group_id: group_id,
                 status: "pending",
                 data: {name: "test"},
@@ -177,7 +177,7 @@ describe('Testing messageQueue resource.', function () {
             request.patch(config.paths.messageQueue + '/' + group_id + '/ack')
                 .set('Authorization', config.token)
                 .set('Content-Type', 'application/json')
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .expect(200)
                 .end(function (err, res) {
 
@@ -194,7 +194,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
+            .set(config.from_header, config.from_header_value)
             .send({
                 to_node_id: "09af1",
                 data: {name: "test"},
@@ -207,7 +207,7 @@ describe('Testing messageQueue resource.', function () {
 
                 (res.body).should.be.instanceOf(Object);
                 (res.body.status).should.be.equal('pending');
-                (res.body.from_node_id).should.be.equal(config.fromHeaderValue);
+                (res.body.from_node_id).should.be.equal(config.from_header_value);
                 (res.body.data).should.be.instanceOf(Object);
                 (res.body.type).should.be.equal('email');
                 (res.body.to_node_id).should.be.equal('09af1');
@@ -221,9 +221,9 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
             .set('Content-Type', 'application/json')
-            .set(config.fromHeader, config.fromHeaderValue)
+            .set(config.from_header, config.from_header_value)
             .send({
-                to_node_id: config.fromHeaderValue,
+                to_node_id: config.from_header_value,
                 data: {"name": "tester"}
             })
             .end(function (err, res) {
@@ -234,7 +234,7 @@ describe('Testing messageQueue resource.', function () {
                 /// Get the message.
                 request.get(config.paths.messageQueue)
                     .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
+                    .set(config.from_header, config.from_header_value)
                     .end(function (err, res) {
 
                         if (err) {
@@ -243,7 +243,7 @@ describe('Testing messageQueue resource.', function () {
                         /// Ack message
                         request.patch(config.paths.messageQueue + '/' + res.body._id + '/ack')
                             .set('Authorization', config.token)
-                            .set(config.fromHeader, config.fromHeaderValue)
+                            .set(config.from_header, config.from_header_value)
                             .end(function (err, res) {
                                 if (err) {
                                     throw err;
@@ -260,7 +260,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
-            .set(config.fromHeader, config.fromHeaderValue)
+            .set(config.from_header, config.from_header_value)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -284,7 +284,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
-            //.set(config.fromHeader, config.fromHeaderValue)
+            //.set(config.from_header, config.from_header_value)
             .send({
                 to_node_id: "09af1",
                 status: "pending",
@@ -310,7 +310,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     group_id: group_id,
@@ -331,7 +331,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
+                        .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -358,7 +358,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     status: "processing",
@@ -375,7 +375,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
+                        .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -390,7 +390,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     status: "scheduled",
@@ -407,7 +407,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
+                        .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -422,7 +422,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     status: "pending",
@@ -439,7 +439,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
+                        .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -454,7 +454,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     status: "pendinggggggggggggggggggggggggggggggggggggg",
@@ -478,7 +478,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .send({
                     to_node_id: "09af1",
                     status: "pending",
@@ -504,7 +504,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.token)
-                        .set(config.fromHeader, config.fromHeaderValue)
+                        .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {

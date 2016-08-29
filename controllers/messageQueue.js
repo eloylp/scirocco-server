@@ -4,7 +4,7 @@ var uuid = require('node-uuid');
 
 exports.queuePull = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header']
+    var node_id_header = req.app.get('config')['from_header']
 
     var quantity = parseInt(req.query.quantity);
 
@@ -66,7 +66,7 @@ exports.queuePull = function (req, res, next) {
 
 exports.queuePush = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     req.body.from_node_id = req.header(node_id_header);
     var message = new models.message(req.body);
     message.save(function (err, result) {
@@ -82,7 +82,7 @@ exports.queuePush = function (req, res, next) {
 
 exports.ack = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
 
     models.message.findOneAndUpdate({
             _id: req.params.message_id, to_node_id: req.header(node_id_header), status: "processing"
@@ -107,7 +107,7 @@ exports.ack = function (req, res, next) {
 
 exports.ackGroup = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['dds_node_id_header'];
+    var node_id_header = req.app.get('config')['from_header'];
     models.message.update({group_id: req.params.group_id, to_node_id: req.header(node_id_header)},
         {$set: {status: "processing"}}, {multi: true})
         .exec(function (err, result) {
