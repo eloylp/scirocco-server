@@ -47,18 +47,17 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
+                to: config.from_header_value,
+                from: config.from_header_value,
                 status: "pending",
-                data: {name: "test"},
-                type: "email"
+                data: {name: "test"}
+
             },
             {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
+                to: config.from_header_value,
+                from: config.from_header_value,
                 status: "pending",
-                data: {name: "test"},
-                type: "email"
+                data: {name: "test"}
             }
         ];
 
@@ -78,113 +77,10 @@ describe('Testing messageQueue resource.', function () {
                     if (err) {
                         throw err;
                     }
-                    (res.body.to_node_id).should.be.equal(config.from_header_value);
-                    (res.body.from_node_id).should.be.equal(config.from_header_value);
-                    (res.body.status).should.be.equal('processing');
-                    done();
-                });
-        });
-    });
 
-    it("Should pull a group of messages from queue.", function (done) {
-
-        var messages = [
-            {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            },
-            {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            }
-        ];
-
-        model.message.insertMany(messages, function (err, res) {
-
-            if (err) {
-                throw err;
-            }
-
-            request.get(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set('Content-Type', 'application/json')
-                .set(config.from_header, config.from_header_value)
-                .expect(200)
-                .query({
-                    quantity: 2
-                })
-                .end(function (err, res) {
-
-                    if (err) {
-                        throw err;
-                    }
-
-                    (res.body).should.be.instanceOf(Array);
-                    (res.body.length).should.be.equal(2);
-
-                    for (var m in res.body) {
-
-                        var message = res.body[m];
-
-                        (message.status).should.be.equal('processing');
-                        (message.to_node_id).should.be.equal(config.from_header_value);
-                        (message.from_node_id).should.be.equal(config.from_header_value);
-                        (message).should.have.property("group_id");
-                        (message.group_id.length).should.be.equal(36);
-                        (message.data).should.be.instanceOf(Object);
-                        (message.data).should.have.property("name").and.have.valueOf("test");
-                    }
-                    done();
-                });
-        });
-
-    });
-
-    it("Should ack a group of messages previously pulled. All of them.", function (done) {
-
-        var group_id = uuid.v4();
-        var messages = [
-            {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
-                group_id: group_id,
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            },
-            {
-                to_node_id: config.from_header_value,
-                from_node_id: config.from_header_value,
-                group_id: group_id,
-                status: "pending",
-                data: {name: "test"},
-                type: "email"
-            }
-        ];
-
-        model.message.insertMany(messages, function (err, res) {
-
-            if (err) {
-                throw err;
-            }
-
-            request.patch(config.paths.messageQueue + '/' + group_id + '/ack')
-                .set('Authorization', config.token)
-                .set('Content-Type', 'application/json')
-                .set(config.from_header, config.from_header_value)
-                .expect(200)
-                .end(function (err, res) {
-
-                    (res.body).should.be.instanceOf(Object);
-                    (res.body.ok).should.be.true;
-                    (res.body.n).should.be.equal(2);
-                    (res.body.nModified).should.be.equal(2);
+                    (res.headers[config.to_header.toLowerCase()]).should.be.equal(config.from_header_value);
+                    (res.headers[config.from_header.toLowerCase()]).should.be.equal(config.from_header_value);
+                    (res.headers[config.status_header.toLowerCase()]).should.be.equal('processing');
                     done();
                 });
         });
@@ -195,35 +91,32 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
             .set(config.from_header, config.from_header_value)
-            .send({
-                to_node_id: "09af1",
-                data: {name: "test"},
-                type: "email"
-            })
+            .set(config.to_header, "09af1")
+            .send({name: "test"})
             .expect('Content-Type', /json/)
             .expect('Location', /\/messages\/[0-9a-f]/)
             .expect(201)
             .end(function (err, res) {
 
-                (res.body).should.be.instanceOf(Object);
-                (res.body.status).should.be.equal('pending');
-                (res.body.from_node_id).should.be.equal(config.from_header_value);
-                (res.body.data).should.be.instanceOf(Object);
-                (res.body.type).should.be.equal('email');
-                (res.body.to_node_id).should.be.equal('09af1');
+                (res.headers[config.status_header.toLowerCase()]).should.be.equal('pending');
+                (res.headers[config.from_header.toLowerCase()]).should.be.equal(config.from_header_value);
+                (res.headers[config.to_header.toLowerCase()]).should.be.equal('09af1');
+                (res.body).should.be.instanceOf(Object).and.have.property('name');
+                (res.body.name).should.be.equal('test');
+
                 done();
             });
     });
 
     it("Should ack an existing message as processed.", function (done) {
-
+        //TODO continue here ....
         /// Post the message.
         request.post(config.paths.messageQueue)
             .set('Authorization', config.token)
             .set('Content-Type', 'application/json')
             .set(config.from_header, config.from_header_value)
             .send({
-                to_node_id: config.from_header_value,
+                to: config.from_header_value,
                 data: {"name": "tester"}
             })
             .end(function (err, res) {
@@ -262,7 +155,7 @@ describe('Testing messageQueue resource.', function () {
             .set('Authorization', config.token)
             .set(config.from_header, config.from_header_value)
             .send({
-                to_node_id: "09af1",
+                to: "09af1",
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -286,7 +179,7 @@ describe('Testing messageQueue resource.', function () {
             .set('Authorization', config.token)
             //.set(config.from_header, config.from_header_value)
             .send({
-                to_node_id: "09af1",
+                to: "09af1",
                 status: "pending",
                 data: {name: "test"},
                 type: "email"
@@ -298,7 +191,7 @@ describe('Testing messageQueue resource.', function () {
                     throw err;
                 }
                 (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('from_node_id');
+                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('from');
                 done();
             });
     });
@@ -312,7 +205,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     group_id: group_id,
                     queue_id: "09af1",
                     data: {name: "test"},
@@ -338,8 +231,8 @@ describe('Testing messageQueue resource.', function () {
                             (res.body).should.be.an.instanceOf(Object).and.have.property('_id');
                             (res.body._id).should.be.exactly(resp.header.location.split("/").pop());
                             (res.body.status).should.be.exactly("pending");
-                            (res.body.from_node_id).should.be.exactly("af123");
-                            (res.body.to_node_id).should.be.exactly("09af1");
+                            (res.body.from).should.be.exactly("af123");
+                            (res.body.to).should.be.exactly("09af1");
                             (res.body.type).should.be.exactly("email");
                             (res.body.description).should.be.exactly("description");
                             (res.body.group_id).should.be.exactly(group_id);
@@ -360,7 +253,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     status: "processing",
                     data: {name: "test"},
                     type: "email"
@@ -392,7 +285,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     status: "scheduled",
                     data: {name: "test"},
                     type: "email"
@@ -424,7 +317,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     status: "pending",
                     data: {name: "test"},
                     type: "email"
@@ -456,7 +349,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     status: "pendinggggggggggggggggggggggggggggggggggggg",
                     data: {name: "test"},
                     type: "email"
@@ -480,7 +373,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.token)
                 .set(config.from_header, config.from_header_value)
                 .send({
-                    to_node_id: "09af1",
+                    to: "09af1",
                     status: "pending",
                     data: {name: "test"},
                     type: "email",

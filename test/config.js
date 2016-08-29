@@ -9,6 +9,7 @@ module.exports = {
     to_header: "Scirocco-To",
     topic_header: "Scirocco-Topic",
     update_header: "Scirocco-Update-Time",
+    status_header: "Scirocco-Status",
     from_header_value: "af123",
     paths: {
         messages: "/messages",
