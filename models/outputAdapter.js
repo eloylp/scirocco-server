@@ -14,7 +14,9 @@ exports.output = function (res, results, headerPrefix) {
                     words.push(splitedAttr[i].charAt(0).toUpperCase() + splitedAttr[i].slice(1));
                 }
                 var headerName = [headerPrefix, words.join('-')].join('-').replace('--', '-');
-                res.set(headerName, results[attr])
+
+                var value = /^\d+$/.test(results[attr]) ? parseInt(results[attr]) : results[attr];
+                res.set(headerName, value)
             }
         }
     }

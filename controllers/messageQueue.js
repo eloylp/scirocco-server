@@ -33,6 +33,7 @@ exports.queuePush = function (req, res, next) {
 
     input_data['to'] = req.header(config['to_header'] || null);
     input_data['from'] = req.header(config['from_header'] || null);
+    input_data['status'] = req.header(config['status_header'] || null);
     input_data['data'] = req.body;
 
     var message = new models.message(input_data);
@@ -63,7 +64,7 @@ exports.ack = function (req, res, next) {
                 next(err);
             } else {
                 if (result != null) {
-                    res.json(result);
+                    outputAdapter.output(res, result, req.app.get('config')['header_prefix']);
                 } else {
                     res.status(404);
                     res.json({"message": "Resource not found."})
@@ -72,18 +73,3 @@ exports.ack = function (req, res, next) {
         });
 };
 
-
-exports.ackGroup = function (req, res, next) {
-
-    var node_id_header = req.app.get('config')['from_header'];
-    models.message.update({group_id: req.params.group_id, to: req.header(node_id_header)},
-        {$set: {status: "processing"}}, {multi: true})
-        .exec(function (err, result) {
-
-            if (err) {
-                next(err)
-            } else {
-                res.json(result);
-            }
-        });
-};

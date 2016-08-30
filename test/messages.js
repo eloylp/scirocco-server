@@ -70,7 +70,7 @@ describe('Testing messages resource.', function () {
                             throw err;
                         }
 
-                        (res.headers).should.have.ownProperty(config.update_header.toLowerCase());
+                        (res.headers).should.have.ownProperty(config.update_time_header.toLowerCase());
                         (res.body).should.be.an.instanceOf(Object).and.have.property('name');
                         (res.body).should.be.an.instanceOf(Object).and.have.property('love');
                         (res.body.name).should.be.equal("tester2");

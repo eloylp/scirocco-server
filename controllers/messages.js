@@ -16,10 +16,10 @@ exports.index = function (req, res, next) {
             if (err) {
                 next(err);
             }
-            if(result.length == 0){
+            if (result.length == 0) {
                 res.status(204);
                 res.end();
-            }else{
+            } else {
                 res.json(result);
             }
         });
@@ -57,7 +57,7 @@ exports.show = function (req, res) {
         .findOne(
             {
                 _id: req.params.message_id,
-                $or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]
+                $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
             }
         )
         .exec(function (err, result) {
@@ -65,7 +65,7 @@ exports.show = function (req, res) {
                 next(err);
             }
             if (result != null) {
-                res.json(result);
+                outPutTreatement.output(res, result, req.app.get('config')['header_prefix']);
             } else {
                 res.status(404);
                 res.json({"message": "Resource not found."})
