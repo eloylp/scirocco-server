@@ -31,7 +31,7 @@ describe('Testing messages resource.', function () {
 
             request.get(config.paths.messages)
                 .set('Authorization', config.token)
-                .set(config.fromHeader, config.fromHeaderValue)
+                .set(config.from_header, config.from_header_value)
                 .expect(204)
                 .end(function (err, res) {
                     if (err) {
@@ -43,10 +43,11 @@ describe('Testing messages resource.', function () {
         });
 
     it("Should update previously created message and return it modified.",
+
         function (done) {
             var message = new model.message({
-                to_node_id: config.fromHeaderValue,
-                from_node_id: config.fromHeaderValue,
+                to: config.from_header_value,
+                from: config.from_header_value,
                 data: {"name": "tester", "love": true}
             });
             message.save(function (err, res) {
@@ -56,12 +57,10 @@ describe('Testing messages resource.', function () {
                 }
                 request.patch(config.paths.messages + '/' + res.id)
                     .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
+                    .set(config.from_header, config.from_header_value)
                     .send({
-                        "data": {
                             "name": "tester2",
                             "love": false
-                        }
                     })
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -71,10 +70,11 @@ describe('Testing messages resource.', function () {
                             throw err;
                         }
 
-                        (res.body.data).should.be.an.instanceOf(Object).and.have.property('name');
-                        (res.body.data).should.be.an.instanceOf(Object).and.have.property('love');
-                        (res.body.data.name).should.be.equal("tester2");
-                        (res.body.data.love).should.be.false;
+                        (res.headers).should.have.ownProperty(config.update_time_header.toLowerCase());
+                        (res.body).should.be.an.instanceOf(Object).and.have.property('name');
+                        (res.body).should.be.an.instanceOf(Object).and.have.property('love');
+                        (res.body.name).should.be.equal("tester2");
+                        (res.body.love).should.be.false;
                         done();
                     })
             });
@@ -87,18 +87,16 @@ describe('Testing messages resource.', function () {
             var messages = [
                 {
                     _id: toDeleteId,
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 },
                 {
-                    to_node_id: config.fromHeaderValue + "23",
-                    from_node_id: config.fromHeaderValue + "23",
+                    to: config.from_header_value + "23",
+                    from: config.from_header_value + "23",
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 }
             ];
 
@@ -110,7 +108,7 @@ describe('Testing messages resource.', function () {
 
                 request.delete(config.paths.messages + '/' + toDeleteId)
                     .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
+                    .set(config.from_header, config.from_header_value)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -127,27 +125,24 @@ describe('Testing messages resource.', function () {
 
             var messages = [
                 {
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
-                    data: {name: "test"},
-                    type: "email"
+                    data: {name: "test"}
                 },
                 {
-                    to_node_id: config.fromHeaderValue,
-                    from_node_id: config.fromHeaderValue,
+                    to: config.from_header_value,
+                    from: config.from_header_value,
                     status: "pending",
-                    data: {name: "test"},
-                    type: "email"
+                    data: {name: "test"}
                 },
                 /// This message must not be deleted, because it not belongs or emitted
                 /// to testing node.
                 {
-                    to_node_id: config.fromHeaderValue + "23",
-                    from_node_id: config.fromHeaderValue + "23",
+                    to: config.from_header_value + "23",
+                    from: config.from_header_value + "23",
                     status: "pending",
                     data: {name: "test"},
-                    type: "email"
                 }
             ];
 
@@ -158,7 +153,7 @@ describe('Testing messages resource.', function () {
 
                 request.delete(config.paths.messages)
                     .set('Authorization', config.token)
-                    .set(config.fromHeader, config.fromHeaderValue)
+                    .set(config.from_header, config.from_header_value)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {

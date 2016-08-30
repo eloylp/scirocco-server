@@ -36,18 +36,14 @@ app.use(authMiddleware.check);
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');
 var messageQueueRoutes = require('./routes/messageQueue');
-var batchRoutes = require('./routes/batches');
-var batchQueueRoutes = require('./routes/batchQueue');
 
 
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
-app.use('/batches', batchRoutes);
 app.use('/messageQueue', messageQueueRoutes);
-app.use('/batchQueue', batchQueueRoutes);
 
 
-///  Error handling
+///  Error handling TODO: PASS TO MIDDLEWARE. LOAD IN FUNCTION OF ENVIRONMENT.
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
