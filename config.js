@@ -14,6 +14,13 @@ module.exports = {
     processing_time_header: "Scirocco-Processing-Time",
     processed_time_header: "Scirocco-Processed-Time",
     error_time_header: "Scirocco-Processing-Time",
+    paths: {
+        messages: "/messages",
+        messageQueue: "/messageQueue",
+        batches: "/batches",
+        batchQueue: "/batchQueue"
+    },
+    from_header_value: "af123",
     master_token: process.env.MASTER_TOKEN || "DEFAULT_TOKEN",
     max_pull_messages_allowed: 100
 };

@@ -9,7 +9,7 @@ var model = require('../models/models');
 
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
-var config = require('../test/config');
+var config = require('../config');
 var uuid = require('node-uuid');
 
 
@@ -31,7 +31,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.get(config.paths.messageQueue)
             .set(config.from_header, config.from_header_value)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             .expect(204)
             .end(function (err, res) {
 
@@ -68,7 +68,7 @@ describe('Testing messageQueue resource.', function () {
             }
 
             request.get(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -89,7 +89,7 @@ describe('Testing messageQueue resource.', function () {
     it("Should push a message to queue, and return it in pending state.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             .set(config.from_header, config.from_header_value)
             .set(config.to_header, "09af1")
             .send({name: "test"})
@@ -112,7 +112,7 @@ describe('Testing messageQueue resource.', function () {
         //TODO continue here ....
         /// Post the message.
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             .set('Content-Type', 'application/json')
             .set(config.from_header, config.from_header_value)
             .set(config.to_header, config.from_header_value)
@@ -124,7 +124,7 @@ describe('Testing messageQueue resource.', function () {
                 }
                 /// Get the message.
                 request.get(config.paths.messageQueue)
-                    .set('Authorization', config.token)
+                    .set('Authorization', config.master_token)
                     .set(config.from_header, config.from_header_value)
                     .end(function (err, res) {
 
@@ -133,7 +133,7 @@ describe('Testing messageQueue resource.', function () {
                         }
                         /// Ack message
                         request.patch([config.paths.messageQueue, res.headers[config.id_header.toLowerCase()], 'ack'].join("/"))
-                            .set('Authorization', config.token)
+                            .set('Authorization', config.master_token)
                             .set(config.from_header, config.from_header_value)
                             .end(function (err, res) {
                                 if (err) {
@@ -151,7 +151,7 @@ describe('Testing messageQueue resource.', function () {
     it("Should push a message and return the created one.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             .set(config.from_header, config.from_header_value)
             .set(config.to_header, '09af1')
             .set(config.status_header, 'pending')
@@ -174,7 +174,7 @@ describe('Testing messageQueue resource.', function () {
     it("Should get bad request when pushing a message without 'from header'.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             //.set(config.from_header, config.from_header_value)
             .set(config.to_header, '09af1')
             .set(config.status_header, 'pending')
@@ -196,7 +196,7 @@ describe('Testing messageQueue resource.', function () {
 
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .send({name: "test"})
@@ -211,7 +211,7 @@ describe('Testing messageQueue resource.', function () {
                     var resp = res;
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
+                        .set('Authorization', config.master_token)
                         .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
@@ -234,7 +234,7 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .set(config.status_header, 'processing')
@@ -248,7 +248,7 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
+                        .set('Authorization', config.master_token)
                         .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
@@ -263,7 +263,7 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .set(config.status_header, 'scheduled')
@@ -277,7 +277,7 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
+                        .set('Authorization', config.master_token)
                         .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
@@ -292,7 +292,7 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .set(config.status_header, 'pending')
@@ -306,7 +306,7 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
+                        .set('Authorization', config.master_token)
                         .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)
@@ -321,7 +321,7 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .set(config.status_header, 'pendinggggggggggggggggggggggggggggggggggggg')
@@ -342,7 +342,7 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .set(config.to_header, config.from_header_value)
                 .set(config.tries_header, 23)
@@ -361,7 +361,7 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
+                        .set('Authorization', config.master_token)
                         .set(config.from_header, config.from_header_value)
                         .expect(200)
                         .expect('Content-Type', /json/)

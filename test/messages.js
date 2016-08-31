@@ -9,7 +9,7 @@ var model = require('../models/models');
 
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
-var config = require('../test/config');
+var config = require('../config');
 
 
 describe('Testing messages resource.', function () {
@@ -30,7 +30,7 @@ describe('Testing messages resource.', function () {
         function (done) {
 
             request.get(config.paths.messages)
-                .set('Authorization', config.token)
+                .set('Authorization', config.master_token)
                 .set(config.from_header, config.from_header_value)
                 .expect(204)
                 .end(function (err, res) {
@@ -56,7 +56,7 @@ describe('Testing messages resource.', function () {
                     throw err;
                 }
                 request.patch(config.paths.messages + '/' + res.id)
-                    .set('Authorization', config.token)
+                    .set('Authorization', config.master_token)
                     .set(config.from_header, config.from_header_value)
                     .send({
                             "name": "tester2",
@@ -107,7 +107,7 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.delete(config.paths.messages + '/' + toDeleteId)
-                    .set('Authorization', config.token)
+                    .set('Authorization', config.master_token)
                     .set(config.from_header, config.from_header_value)
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -152,7 +152,7 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.delete(config.paths.messages)
-                    .set('Authorization', config.token)
+                    .set('Authorization', config.master_token)
                     .set(config.from_header, config.from_header_value)
                     .expect(200)
                     .expect('Content-Type', /json/)

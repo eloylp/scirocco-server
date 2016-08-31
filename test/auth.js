@@ -8,7 +8,7 @@ var should = require('should');
 
 var request = supertest.agent('http://localhost:'+ process.env.APP_PORT);
 var server;
-var config = require('../test/config');
+var config = require('../config');
 
 
 describe('Testing api auth.', function(){
@@ -23,7 +23,7 @@ describe('Testing api auth.', function(){
         server.close(done);
     });
 
-    it("Should return 403 because there a are not token set.", function(done){
+    it("Should return 403 because there a are not master_token set.", function(done){
 
         request.get('/')
             .expect('Content-Type', /json/)
@@ -38,7 +38,7 @@ describe('Testing api auth.', function(){
 
     it("Should return 200 because is authenticated.", function(done){
       request.get('/')
-          .set('Authorization', config.token)
+          .set('Authorization', config.master_token)
           .expect('Content-Type', /json/)
           .expect(200)
           .end(function(err, res){
