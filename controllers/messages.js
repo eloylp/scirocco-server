@@ -44,7 +44,7 @@ exports.update = function (req, res, next) {
             } else {
 
                 res.status(200);
-                outPutTreatement.output(res, results, req.app.get('config')['header_prefix']);
+                outPutTreatement.output(res, results);
             }
         });
 };
@@ -65,7 +65,7 @@ exports.show = function (req, res) {
                 next(err);
             }
             if (result != null) {
-                outPutTreatement.output(res, result, req.app.get('config')['header_prefix']);
+                outPutTreatement.output(res, result);
             } else {
                 res.status(404);
                 res.json({"message": "Resource not found."})

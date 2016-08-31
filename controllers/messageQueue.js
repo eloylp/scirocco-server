@@ -20,7 +20,7 @@ exports.queuePull = function (req, res, next) {
                 res.status(204);
                 res.end();
             } else {
-                outputAdapter.output(res, result, req.app.get('config')['header_prefix']);
+                outputAdapter.output(res, result);
             }
         });
 
@@ -43,7 +43,7 @@ exports.queuePush = function (req, res, next) {
         } else {
             res.header('Location', '/messages/' + result._id);
             res.status(201);
-            outputAdapter.output(res, result, req.app.get('config')['header_prefix'])
+            outputAdapter.output(res, result)
         }
     });
 };
@@ -64,7 +64,7 @@ exports.ack = function (req, res, next) {
                 next(err);
             } else {
                 if (result != null) {
-                    outputAdapter.output(res, result, req.app.get('config')['header_prefix']);
+                    outputAdapter.output(res, result);
                 } else {
                     res.status(404);
                     res.json({"message": "Resource not found."})

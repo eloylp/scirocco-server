@@ -1,25 +1,58 @@
-exports.output = function (res, results, headerPrefix) {
+var config = require('../config');
 
-    var responseBody;
-    for (var attr in results.toObject()) {
+exports.output = function (res, results) {
 
-        if (attr == 'data') {
-            responseBody = results[attr];
-        } else {
+    var headerPrefix = config.header_prefix;
 
-            if (results[attr] !== null && ['__v'].indexOf(attr) == -1) {
-                var splitedAttr = attr.split('_');
-                var words = [];
-                for (var i = 0, l = splitedAttr.length; i < l; i++) {
-                    words.push(splitedAttr[i].charAt(0).toUpperCase() + splitedAttr[i].slice(1));
-                }
-                var headerName = [headerPrefix, words.join('-')].join('-').replace('--', '-');
+    var object = results.toObject();
+    var responseBody = this.getData(object);
+    this.clearUnWantedKeys(object, Object.keys(config.headers));
 
-                var value = /^\d+$/.test(results[attr]) ? parseInt(results[attr]) : results[attr];
-                res.set(headerName, value)
-            }
-        }
+    for (var attr in object) {
+
+        res.set(this.attrToheader(attr, headerPrefix), this.performValue(object[attr]));
     }
     res.json(responseBody);
+
+};
+
+exports.clearUnWantedKeys = function (object, allowedKeys) {
+
+    allowedKeys.push('_id');
+    for (var attr in object) {
+
+        if (allowedKeys.indexOf(attr) == -1 || object[attr] === null) {
+            delete object[attr];
+        }
+    }
+};
+
+exports.getData = function (object) {
+
+    for (var attr in object) {
+
+        if (attr == 'data') {
+            return object[attr];
+        }
+    }
+
+    return null;
+};
+
+
+exports.attrToheader = function (attr, headerPrefix) {
+
+    var splitedAttr = attr.split('_');
+    var words = [];
+    for (var i = 0, l = splitedAttr.length; i < l; i++) {
+        words.push(splitedAttr[i].charAt(0).toUpperCase() + splitedAttr[i].slice(1));
+    }
+    return [headerPrefix, words.join('-')].join('-').replace('--', '-');
+
+};
+
+exports.performValue = function (value) {
+
+    return /^\d+$/.test(value) ? parseInt(value) : value;
 
 };
