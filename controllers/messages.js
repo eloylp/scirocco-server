@@ -4,7 +4,7 @@ var outPutTreatement = require('../models/outputAdapter');
 
 exports.index = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
     var max_config_limit = req.app.get('config')['max_pull_messages_allowed'];
     var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
 
@@ -28,7 +28,7 @@ exports.index = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
 
     models.message.findOneAndUpdate(
         {
@@ -52,7 +52,7 @@ exports.update = function (req, res, next) {
 
 exports.show = function (req, res) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
     models.message
         .findOne(
             {
@@ -76,7 +76,7 @@ exports.show = function (req, res) {
 
 exports.delete = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
     models.message.remove({
             _id: req.params.message_id,
             $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
@@ -92,7 +92,7 @@ exports.delete = function (req, res, next) {
 
 exports.deleteAll = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
     models.message.remove({$or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]},
         function (err, results) {
             if (err) {
