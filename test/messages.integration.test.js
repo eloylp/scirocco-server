@@ -9,7 +9,7 @@ var model = require('../models/models');
 
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
-var config = require('../test/config');
+var config = require('../config');
 
 
 describe('Testing messages resource.', function () {
@@ -30,8 +30,8 @@ describe('Testing messages resource.', function () {
         function (done) {
 
             request.get(config.paths.messages)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
                 .expect(204)
                 .end(function (err, res) {
                     if (err) {
@@ -46,8 +46,8 @@ describe('Testing messages resource.', function () {
 
         function (done) {
             var message = new model.message({
-                to: config.from_header_value,
-                from: config.from_header_value,
+                to: 'af123',
+                from: 'af123',
                 data: {"name": "tester", "love": true}
             });
             message.save(function (err, res) {
@@ -56,8 +56,8 @@ describe('Testing messages resource.', function () {
                     throw err;
                 }
                 request.patch(config.paths.messages + '/' + res.id)
-                    .set('Authorization', config.token)
-                    .set(config.from_header, config.from_header_value)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
                     .send({
                             "name": "tester2",
                             "love": false
@@ -70,7 +70,7 @@ describe('Testing messages resource.', function () {
                             throw err;
                         }
 
-                        (res.headers).should.have.ownProperty(config.update_time_header.toLowerCase());
+                        (res.headers).should.have.ownProperty(config.headers.update_time.toLowerCase());
                         (res.body).should.be.an.instanceOf(Object).and.have.property('name');
                         (res.body).should.be.an.instanceOf(Object).and.have.property('love');
                         (res.body.name).should.be.equal("tester2");
@@ -87,14 +87,14 @@ describe('Testing messages resource.', function () {
             var messages = [
                 {
                     _id: toDeleteId,
-                    to: config.from_header_value,
-                    from: config.from_header_value,
+                    to: 'af123',
+                    from: 'af123',
                     status: "pending",
                     data: {name: "test"},
                 },
                 {
-                    to: config.from_header_value + "23",
-                    from: config.from_header_value + "23",
+                    to: 'af123' + "23",
+                    from: 'af123' + "23",
                     status: "pending",
                     data: {name: "test"},
                 }
@@ -107,8 +107,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.delete(config.paths.messages + '/' + toDeleteId)
-                    .set('Authorization', config.token)
-                    .set(config.from_header, config.from_header_value)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (req, res) {
@@ -125,22 +125,22 @@ describe('Testing messages resource.', function () {
 
             var messages = [
                 {
-                    to: config.from_header_value,
-                    from: config.from_header_value,
+                    to: 'af123',
+                    from: 'af123',
                     status: "pending",
                     data: {name: "test"}
                 },
                 {
-                    to: config.from_header_value,
-                    from: config.from_header_value,
+                    to: 'af123',
+                    from: 'af123',
                     status: "pending",
                     data: {name: "test"}
                 },
                 /// This message must not be deleted, because it not belongs or emitted
                 /// to testing node.
                 {
-                    to: config.from_header_value + "23",
-                    from: config.from_header_value + "23",
+                    to: 'af123' + "23",
+                    from: 'af123' + "23",
                     status: "pending",
                     data: {name: "test"},
                 }
@@ -152,8 +152,8 @@ describe('Testing messages resource.', function () {
                 }
 
                 request.delete(config.paths.messages)
-                    .set('Authorization', config.token)
-                    .set(config.from_header, config.from_header_value)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {

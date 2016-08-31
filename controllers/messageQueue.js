@@ -5,7 +5,7 @@ var uuid = require('node-uuid');
 
 exports.queuePull = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
 
     models.message
         .findOneAndUpdate({to: req.header(node_id_header), status: "pending"},
@@ -20,7 +20,7 @@ exports.queuePull = function (req, res, next) {
                 res.status(204);
                 res.end();
             } else {
-                outputAdapter.output(res, result, req.app.get('config')['header_prefix']);
+                outputAdapter.output(res, result);
             }
         });
 
@@ -29,11 +29,11 @@ exports.queuePull = function (req, res, next) {
 exports.queuePush = function (req, res, next) {
 
     var input_data = {};
-    var config = req.app.get('config');
+    var headers = req.app.get('config')['headers'];
 
-    input_data['to'] = req.header(config['to_header'] || null);
-    input_data['from'] = req.header(config['from_header'] || null);
-    input_data['status'] = req.header(config['status_header'] || null);
+    input_data['to'] = req.header(headers['to'] || null);
+    input_data['from'] = req.header(headers['from'] || null);
+    input_data['status'] = req.header(headers['status'] || null);
     input_data['data'] = req.body;
 
     var message = new models.message(input_data);
@@ -43,7 +43,7 @@ exports.queuePush = function (req, res, next) {
         } else {
             res.header('Location', '/messages/' + result._id);
             res.status(201);
-            outputAdapter.output(res, result, req.app.get('config')['header_prefix'])
+            outputAdapter.output(res, result)
         }
     });
 };
@@ -51,7 +51,7 @@ exports.queuePush = function (req, res, next) {
 
 exports.ack = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['from_header'];
+    var node_id_header = req.app.get('config')['headers']['from'];
 
     models.message.findOneAndUpdate({
             _id: req.params.message_id, to: req.header(node_id_header), status: "processing"
@@ -64,7 +64,7 @@ exports.ack = function (req, res, next) {
                 next(err);
             } else {
                 if (result != null) {
-                    outputAdapter.output(res, result, req.app.get('config')['header_prefix']);
+                    outputAdapter.output(res, result);
                 } else {
                     res.status(404);
                     res.json({"message": "Resource not found."})

@@ -1,19 +1,35 @@
 // TODO IMPROVE THIS HEADER PREFIX.
 
-module.exports = {
-    header_prefix: "Scirocco",
-    from_header: "Scirocco-From",
-    to_header: "Scirocco-To",
-    id_header: "Scirocco-Id",
-    tries_header: "Scirocco-Tries",
-    topic_header: "Scirocco-Topic",
-    status_header: "Scirocco-Status",
-    update_time_header: "Scirocco-Update-Time",
-    created_time_header: "Scirocco-Created-Time",
-    scheduled_time_header: "Scirocco-Scheduled-Time",
-    processing_time_header: "Scirocco-Processing-Time",
-    processed_time_header: "Scirocco-Processed-Time",
-    error_time_header: "Scirocco-Processing-Time",
-    master_token: process.env.MASTER_TOKEN || "DEFAULT_TOKEN",
-    max_pull_messages_allowed: 100
-};
+module.exports = (function () {
+
+    var config = new Object();
+
+    config.header_prefix = "Scirocco";
+
+    config.headers = {
+        from: [config.header_prefix, 'From'].join('-'),
+        to: [config.header_prefix, 'To'].join('-'),
+        id: [config.header_prefix, 'Id'].join('-'),
+        tries: [config.header_prefix, 'Tries'].join('-'),
+        topic: [config.header_prefix, 'Topic'].join('-'),
+        status: [config.header_prefix, 'Status'].join('-'),
+        update_time: [config.header_prefix, 'Update', 'Time'].join('-'),
+        created_time: [config.header_prefix, 'Created', 'Time'].join('-'),
+        scheduled_time: [config.header_prefix, 'Scheduled', 'Time'].join('-'),
+        processing_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
+        processed_time: [config.header_prefix, 'Processed', 'Time'].join('-'),
+        error_time: [config.header_prefix, 'Processing', 'Time'].join('-')
+    };
+
+    config.paths = {
+        messages: "/messages",
+        messageQueue: "/messageQueue",
+        batches: "/batches",
+        batchQueue: "/batchQueue"
+    };
+
+    config.master_token = process.env.MASTER_TOKEN || "DEFAULT_TOKEN";
+    config.max_pull_messages_allowed = 100;
+    return config;
+
+})();

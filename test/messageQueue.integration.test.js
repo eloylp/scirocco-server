@@ -9,7 +9,7 @@ var model = require('../models/models');
 
 var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
 var server;
-var config = require('../test/config');
+var config = require('../config');
 var uuid = require('node-uuid');
 
 
@@ -30,8 +30,8 @@ describe('Testing messageQueue resource.', function () {
     it("Should return an empty object and a 204 status code if no messages remaining.", function (done) {
 
         request.get(config.paths.messageQueue)
-            .set(config.from_header, config.from_header_value)
-            .set('Authorization', config.token)
+            .set(config.headers.from, 'af123')
+            .set('Authorization', config.master_token)
             .expect(204)
             .end(function (err, res) {
 
@@ -47,15 +47,15 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to: config.from_header_value,
-                from: config.from_header_value,
+                to: 'af123',
+                from: 'af123',
                 status: "pending",
                 data: {name: "test"}
 
             },
             {
-                to: config.from_header_value,
-                from: config.from_header_value,
+                to: 'af123',
+                from: 'af123',
                 status: "pending",
                 data: {name: "test"}
             }
@@ -68,8 +68,8 @@ describe('Testing messageQueue resource.', function () {
             }
 
             request.get(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .end(function (err, res) {
@@ -78,9 +78,9 @@ describe('Testing messageQueue resource.', function () {
                         throw err;
                     }
 
-                    (res.headers[config.to_header.toLowerCase()]).should.be.equal(config.from_header_value);
-                    (res.headers[config.from_header.toLowerCase()]).should.be.equal(config.from_header_value);
-                    (res.headers[config.status_header.toLowerCase()]).should.be.equal('processing');
+                    (res.headers[config.headers.to.toLowerCase()]).should.be.equal('af123');
+                    (res.headers[config.headers.from.toLowerCase()]).should.be.equal('af123');
+                    (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processing');
                     done();
                 });
         });
@@ -89,18 +89,18 @@ describe('Testing messageQueue resource.', function () {
     it("Should push a message to queue, and return it in pending state.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
-            .set(config.from_header, config.from_header_value)
-            .set(config.to_header, "09af1")
+            .set('Authorization', config.master_token)
+            .set(config.headers.from, 'af123')
+            .set(config.headers.to, "09af1")
             .send({name: "test"})
             .expect('Content-Type', /json/)
             .expect('Location', /\/messages\/[0-9a-f]/)
             .expect(201)
             .end(function (err, res) {
 
-                (res.headers[config.status_header.toLowerCase()]).should.be.equal('pending');
-                (res.headers[config.from_header.toLowerCase()]).should.be.equal(config.from_header_value);
-                (res.headers[config.to_header.toLowerCase()]).should.be.equal('09af1');
+                (res.headers[config.headers.status.toLowerCase()]).should.be.equal('pending');
+                (res.headers[config.headers.from.toLowerCase()]).should.be.equal('af123');
+                (res.headers[config.headers.to.toLowerCase()]).should.be.equal('09af1');
                 (res.body).should.be.instanceOf(Object).and.have.property('name');
                 (res.body.name).should.be.equal('test');
 
@@ -112,10 +112,10 @@ describe('Testing messageQueue resource.', function () {
         //TODO continue here ....
         /// Post the message.
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
+            .set('Authorization', config.master_token)
             .set('Content-Type', 'application/json')
-            .set(config.from_header, config.from_header_value)
-            .set(config.to_header, config.from_header_value)
+            .set(config.headers.from, 'af123')
+            .set(config.headers.to, 'af123')
             .send({"name": "tester"})
             .end(function (err, res) {
 
@@ -124,23 +124,23 @@ describe('Testing messageQueue resource.', function () {
                 }
                 /// Get the message.
                 request.get(config.paths.messageQueue)
-                    .set('Authorization', config.token)
-                    .set(config.from_header, config.from_header_value)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
                     .end(function (err, res) {
 
                         if (err) {
                             throw err;
                         }
                         /// Ack message
-                        request.patch([config.paths.messageQueue, res.headers[config.id_header.toLowerCase()], 'ack'].join("/"))
-                            .set('Authorization', config.token)
-                            .set(config.from_header, config.from_header_value)
+                        request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join("/"))
+                            .set('Authorization', config.master_token)
+                            .set(config.headers.from, 'af123')
                             .end(function (err, res) {
                                 if (err) {
                                     throw err;
                                 }
 
-                                (res.headers[config.status_header.toLowerCase()]).should.be.equal('processed');
+                                (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processed');
                                 done();
 
                             });
@@ -151,10 +151,10 @@ describe('Testing messageQueue resource.', function () {
     it("Should push a message and return the created one.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
-            .set(config.from_header, config.from_header_value)
-            .set(config.to_header, '09af1')
-            .set(config.status_header, 'pending')
+            .set('Authorization', config.master_token)
+            .set(config.headers.from, 'af123')
+            .set(config.headers.to, '09af1')
+            .set(config.headers.status, 'pending')
             .send({
                 name: "test"
             })
@@ -166,7 +166,7 @@ describe('Testing messageQueue resource.', function () {
                     throw err;
                 }
                 (res.body).should.be.an.instanceOf(Object).and.have.property('name');
-                (res.headers[config.id_header.toLowerCase()]).should.be.equal(res.header.location.split("/").pop());
+                (res.headers[config.headers.id.toLowerCase()]).should.be.equal(res.header.location.split("/").pop());
                 done();
             });
     });
@@ -174,10 +174,10 @@ describe('Testing messageQueue resource.', function () {
     it("Should get bad request when pushing a message without 'from header'.", function (done) {
 
         request.post(config.paths.messageQueue)
-            .set('Authorization', config.token)
-            //.set(config.from_header, config.from_header_value)
-            .set(config.to_header, '09af1')
-            .set(config.status_header, 'pending')
+            .set('Authorization', config.master_token)
+            //.set(config.headers.from, 'af123')
+            .set(config.headers.to, '09af1')
+            .set(config.headers.status, 'pending')
             .send({name: "test"})
             .expect(400)
             .expect('Content-Type', /json/)
@@ -196,9 +196,9 @@ describe('Testing messageQueue resource.', function () {
 
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -211,17 +211,17 @@ describe('Testing messageQueue resource.', function () {
                     var resp = res;
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.from_header, config.from_header_value)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
 
-                            (res.headers[config.id_header.toLowerCase()]).should.be.exactly(resp.header.location.split("/").pop());
-                            (res.headers[config.status_header.toLowerCase()]).should.be.exactly("pending");
-                            (res.headers[config.from_header.toLowerCase()]).should.be.exactly(config.from_header_value);
-                            (res.headers[config.to_header.toLowerCase()]).should.be.exactly(config.from_header_value);
-                            (res.headers[config.tries_header.toLowerCase()]).should.be.exactly('0');
+                            (res.headers[config.headers.id.toLowerCase()]).should.be.exactly(resp.header.location.split("/").pop());
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
+                            (res.headers[config.headers.from.toLowerCase()]).should.be.exactly('af123');
+                            (res.headers[config.headers.to.toLowerCase()]).should.be.exactly('af123');
+                            (res.headers[config.headers.tries.toLowerCase()]).should.be.exactly('0');
                             (res.body).should.be.an.instanceOf(Object).and.have.property('name');
                             (res.body.name).should.be.exactly("test");
                             done();
@@ -234,10 +234,10 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
-                .set(config.status_header, 'processing')
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'processing')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -248,12 +248,12 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.from_header, config.from_header_value)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
-                            (res.headers[config.status_header.toLowerCase()]).should.be.exactly("pending");
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
                             done();
                         });
                 });
@@ -263,10 +263,10 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
-                .set(config.status_header, 'scheduled')
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'scheduled')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -277,12 +277,12 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.from_header, config.from_header_value)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
-                            (res.headers[config.status_header.toLowerCase()]).should.be.exactly("scheduled");
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("scheduled");
                             done();
                         });
                 });
@@ -292,10 +292,10 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
-                .set(config.status_header, 'pending')
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'pending')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -306,12 +306,12 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.from_header, config.from_header_value)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
-                            (res.headers[config.status_header.toLowerCase()]).should.be.exactly("pending");
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
                             done();
                         });
                 });
@@ -321,10 +321,10 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
-                .set(config.status_header, 'pendinggggggggggggggggggggggggggggggggggggg')
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
                 .send({name: "test"})
                 .expect(400)
                 .expect('Content-Type', /json/)
@@ -342,15 +342,15 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             request.post(config.paths.messageQueue)
-                .set('Authorization', config.token)
-                .set(config.from_header, config.from_header_value)
-                .set(config.to_header, config.from_header_value)
-                .set(config.tries_header, 23)
-                .set(config.update_time_header, new Date())
-                .set(config.scheduled_time_header, new Date())
-                .set(config.processing_time_header, new Date())
-                .set(config.processed_time_header, new Date())
-                .set(config.error_time_header, new Date())
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.tries, 23)
+                .set(config.headers.update_time, new Date())
+                .set(config.headers.scheduled_time, new Date())
+                .set(config.headers.processing_time, new Date())
+                .set(config.headers.processed_time, new Date())
+                .set(config.headers.error_time, new Date())
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -361,18 +361,18 @@ describe('Testing messageQueue resource.', function () {
                     }
 
                     request.get(res.header.location)
-                        .set('Authorization', config.token)
-                        .set(config.from_header, config.from_header_value)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
-                            (res.headers).should.have.ownProperty(config.tries_header.toLowerCase());
-                            (res.headers).should.have.ownProperty(config.created_time_header.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.update_time_header.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.scheduled_time_header.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.processed_time_header.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.error_time_header.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.processed_time_header.toLowerCase());
+                            (res.headers).should.have.ownProperty(config.headers.tries.toLowerCase());
+                            (res.headers).should.have.ownProperty(config.headers.created_time.toLowerCase());
+                            (res.headers).should.not.have.ownProperty(config.headers.update_time.toLowerCase());
+                            (res.headers).should.not.have.ownProperty(config.headers.scheduled_time.toLowerCase());
+                            (res.headers).should.not.have.ownProperty(config.headers.processed_time.toLowerCase());
+                            (res.headers).should.not.have.ownProperty(config.headers.error_time.toLowerCase());
+                            (res.headers).should.not.have.ownProperty(config.headers.processed_time.toLowerCase());
                             done();
                         });
                 });
