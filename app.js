@@ -29,6 +29,7 @@ app.set('config', config);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.text());
 app.use(authMiddleware.check);
 
 /// Routing
