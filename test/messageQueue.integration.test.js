@@ -390,8 +390,9 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
                 .set(config.headers.to, 'af123')
+                .set('Content-Type', 'text/plain')
                 .send('string')
-                .expect('Content-Type', 'text/plain')
+                .expect('Content-Type', 'text/plain; charset=utf-8')
                 .end(function (err, res) {
 
                     if (err) {
