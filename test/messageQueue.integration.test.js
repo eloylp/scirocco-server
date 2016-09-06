@@ -365,7 +365,12 @@ describe('Testing messageQueue resource.', function () {
                         .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
-                        .end(function (req, res) {
+                        .end(function (err, res) {
+
+                            if (err) {
+                                throw err;
+                            }
+
                             (res.headers).should.have.ownProperty(config.headers.tries.toLowerCase());
                             (res.headers).should.have.ownProperty(config.headers.created_time.toLowerCase());
                             (res.headers).should.not.have.ownProperty(config.headers.update_time.toLowerCase());
@@ -376,5 +381,18 @@ describe('Testing messageQueue resource.', function () {
                             done();
                         });
                 });
+        });
+
+    it("Should can push an string (text-plain) in body.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set('Content-Type', 'text/plain')
+                .send('string')
+                .expect('Content-Type', /plain/)
+                .expect('string', done);
         });
 });

@@ -12,8 +12,12 @@ exports.output = function (res, results) {
 
         res.set(this.attrToheader(attr, headerPrefix), this.performValue(object[attr]));
     }
-    res.json(responseBody);
-
+    if(typeof responseBody == 'string'){
+        res.set('Content-Type', 'text/plain');
+        res.send(responseBody)
+    }else{
+        res.json(responseBody);
+    }
 };
 
 exports.clearUnWantedKeys = function (object, allowedKeys) {

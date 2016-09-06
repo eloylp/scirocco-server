@@ -28,6 +28,8 @@ module.exports = (function () {
         batchQueue: "/batchQueue"
     };
 
+    config.contentsAllowed = ['text/plain', 'application/json'];
+
     config.master_token = process.env.MASTER_TOKEN || "DEFAULT_TOKEN";
     config.max_pull_messages_allowed = 100;
     return config;
