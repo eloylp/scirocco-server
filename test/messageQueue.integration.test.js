@@ -383,7 +383,7 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Should can push an string in body.",
+    it("Should can push an string (text-plain) in body.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -392,15 +392,7 @@ describe('Testing messageQueue resource.', function () {
                 .set(config.headers.to, 'af123')
                 .set('Content-Type', 'text/plain')
                 .send('string')
-                .expect('Content-Type', 'text/plain; charset=utf-8')
-                .end(function (err, res) {
-
-                    if (err) {
-                        throw err;
-                    }
-
-                    (res.body).should.be.equal('string');
-                    done();
-                });
+                .expect('Content-Type', /plain/)
+                .expect('string', done);
         });
 });
