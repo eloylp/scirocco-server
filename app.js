@@ -50,10 +50,12 @@ app.use(errorHandlersMiddleWare.notFoundRedir());
 // will print stacktrace
 if (app.get('env') === 'development' || app.get('env') === 'testing') {
     app.use(errorHandlersMiddleWare.develop());
+
+} else {
+    // production error handler
+    // no stacktraces leaked to user
+    app.use(errorHandlersMiddleWare.production());
 }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(errorHandlersMiddleWare.production());
 
 module.exports = app;
