@@ -1,0 +1,36 @@
+version: "2"
+networks:
+  scirocco_mongo:
+services:
+  scirocco_server:
+    restart: always
+    working_dir: /usr/src/app
+    user: app
+    build: node
+    image: scirocco-server
+    ports:
+      - "80:8000"
+    networks:
+      scirocco_mongo:
+        aliases:
+          - "scirocco-server"
+    depends_on:
+      - "scirocco_db"
+  scirocco_db:
+    restart: always
+    build: mongo
+    image: scirocco-mongo
+    expose:
+      - "27017"
+    networks:
+      scirocco_mongo:
+        aliases:
+          - "scirocco-db"
+    command: "--storageEngine wiredTiger"
+
+
+
+
+
+
+  
