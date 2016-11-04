@@ -8,13 +8,13 @@ var messageSchema = new mongoose.Schema({
     topic: {type: String, required: false, index: true},
     status: {type: String, required: false, index: true, validate: validators.messageStatus},
     tries: {type: Number, index: true, validate: validators.integerUnsigned},
-    created_time: {type: Date},
-    update_time: {type: Date},
-    scheduled_time: {type: Date},
-    processing_time: {type: Date},
-    error_time: {type: Date},
-    processed_time: {type: Date},
-    data: {type: Object, required: true}
+    created_time: {type: Date, index: true},
+    update_time: {type: Date, index: true},
+    scheduled_time: {type: Date, index: true},
+    processing_time: {type: Date, index: true},
+    error_time: {type: Date, index:true},
+    processed_time: {type: Date, index:true},
+    data: {type: mongoose.Schema.Types.Mixed, required: true}
 
 });
 
