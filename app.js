@@ -21,7 +21,7 @@ var app = express();
 
 /// Settings
 
-app.set('port', process.env.SCIROCCO_PORT || 3000);
+app.set('port', process.env.SCIROCCO_PORT || 8000);
 app.set('env', process.env.SCIROCCO_ENV || 'development');
 app.set('x-powered-by', false);
 app.set('json spaces', 40);
@@ -54,7 +54,7 @@ app.use('/messageQueue', messageQueueRoutes);
 app.use(errorHandlersMiddleWare.notFoundRedir());
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development' || app.get('env') === 'testing') {
+if (app.get('env') === 'development') {
     app.use(errorHandlersMiddleWare.develop());
 
 } else {
