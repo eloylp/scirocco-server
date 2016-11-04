@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
-var dbURI = process.env.MONGO_URL;
+var dbURI = process.env.SCIROCCO_MONGO_URL;
 mongoose.connect(dbURI);
 
-mongoose.set('debug', (process.env.APP_ENV == 'development'));
+mongoose.set('debug', (process.env.SCIROCCO_ENV == 'development'));
 
 // CONNECTION EVENTS
 // When successfully connected

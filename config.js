@@ -28,9 +28,9 @@ module.exports = (function () {
         batchQueue: "/batchQueue"
     };
 
-    config.contentsAllowed = ['text/plain', 'application/json'];
+    config.contentsAllowed = ['text/plain', 'application/json', 'application/octet-stream'];
 
-    config.master_token = process.env.MASTER_TOKEN || "DEFAULT_TOKEN";
+    config.master_token = process.env.SCIROCCO_MASTER_TOKEN || "DEFAULT_TOKEN";
     config.max_pull_messages_allowed = 100;
     return config;
 

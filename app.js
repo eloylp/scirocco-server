@@ -1,8 +1,11 @@
-/// Load environment, if proceed
+/// Load environment.
 
-if (!process.env.NO_APP_FILE_ENV) {
-    var env = require('node-env-file');
+var env = require('node-env-file');
+try {
     env(__dirname + '/.env');
+} catch (err) {
+    console.error("Error reading .env file. You can copy an example from .env.dist .");
+    process.exit(1);
 }
 
 /// Dependencies
@@ -18,8 +21,8 @@ var app = express();
 
 /// Settings
 
-app.set('port', process.env.APP_PORT || 3000);
-app.set('env', process.env.APP_ENV);
+app.set('port', process.env.SCIROCCO_PORT || 3000);
+app.set('env', process.env.SCIROCCO_ENV || 'development');
 app.set('x-powered-by', false);
 app.set('json spaces', 40);
 app.set('config', config);
@@ -27,8 +30,11 @@ app.set('config', config);
 
 /// Middlewares add
 
+
+/// TODO pass this limits to config.
 app.use(logger('dev'));
 app.use(bodyParser.json());
+app.use(bodyParser.raw({limit: "1000kb"}));
 app.use(bodyParser.text());
 app.use(authMiddleware.check());
 app.use(requestTreatmentMiddleWare.checkContentType());
