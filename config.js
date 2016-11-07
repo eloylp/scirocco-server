@@ -29,7 +29,7 @@ module.exports = (function () {
         batchQueue: "/batchQueue"
     };
 
-    /// Sizes units are controlled by third party lib. see
+    /// Sizes units are controlled by third party lib. see https://www.npmjs.com/package/bytes
 
     config.sizeLimits = {
 
