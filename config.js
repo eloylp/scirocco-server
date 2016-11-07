@@ -18,7 +18,8 @@ module.exports = (function () {
         scheduled_time: [config.header_prefix, 'Scheduled', 'Time'].join('-'),
         processing_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
         processed_time: [config.header_prefix, 'Processed', 'Time'].join('-'),
-        error_time: [config.header_prefix, 'Processing', 'Time'].join('-')
+        error_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
+        data_type: [config.header_prefix, 'Data', 'Type'].join('-')
     };
 
     config.paths = {
@@ -28,9 +29,18 @@ module.exports = (function () {
         batchQueue: "/batchQueue"
     };
 
-    config.contentsAllowed = ['text/plain', 'application/json'];
+    /// Sizes units are controlled by third party lib. see https://www.npmjs.com/package/bytes
 
-    config.master_token = process.env.MASTER_TOKEN || "DEFAULT_TOKEN";
+    config.sizeLimits = {
+
+        text: [process.env.SCIROCCO_MAX_KB_SIZE_TEXT, 'kb'].join(''),
+        raw: [process.env.SCIROCCO_MAX_KB_SIZE_RAW, 'kb'].join(''),
+        json: [process.env.SCIROCCO_MAX_KB_SIZE_JSON, 'kb'].join('')
+    };
+
+    config.contentsAllowed = ['text/plain', 'application/json', 'application/octet-stream'];
+
+    config.master_token = process.env.SCIROCCO_MASTER_TOKEN || "DEFAULT_TOKEN";
     config.max_pull_messages_allowed = 100;
     return config;
 

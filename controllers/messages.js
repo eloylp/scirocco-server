@@ -9,7 +9,7 @@ exports.index = function (req, res, next) {
     var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
 
     models.message
-        .find({$or: [{to_node_id: req.header(node_id_header)}, {from_node_id: req.header(node_id_header)}]})
+        .find({$or: [{to_node_id: req.get(node_id_header)}, {from_node_id: req.get(node_id_header)}]})
         .sort({create_time: -1})
         .limit(limit)
         .exec(function (err, result) {
@@ -33,7 +33,7 @@ exports.update = function (req, res, next) {
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,
-            $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
+            $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
         },
         {data: req.body},
         {runValidators: true, new: true},
@@ -57,7 +57,7 @@ exports.show = function (req, res) {
         .findOne(
             {
                 _id: req.params.message_id,
-                $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
+                $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
             }
         )
         .exec(function (err, result) {
@@ -79,7 +79,7 @@ exports.delete = function (req, res, next) {
     var node_id_header = req.app.get('config')['headers']['from'];
     models.message.remove({
             _id: req.params.message_id,
-            $or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]
+            $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
         },
         function (err, results) {
             if (err) {
@@ -93,7 +93,7 @@ exports.delete = function (req, res, next) {
 exports.deleteAll = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['headers']['from'];
-    models.message.remove({$or: [{to: req.header(node_id_header)}, {from: req.header(node_id_header)}]},
+    models.message.remove({$or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]},
         function (err, results) {
             if (err) {
                 next(err);

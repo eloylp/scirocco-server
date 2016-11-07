@@ -6,7 +6,7 @@ env(__dirname + '/../.env');
 var supertest = require('supertest');
 var should = require('should');
 
-var request = supertest.agent('http://localhost:'+ process.env.APP_PORT);
+var request = supertest.agent('http://localhost:'+ process.env.SCIROCCO_PORT);
 var server;
 var config = require('../config');
 

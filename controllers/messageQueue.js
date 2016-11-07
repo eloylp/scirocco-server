@@ -6,9 +6,8 @@ var uuid = require('node-uuid');
 exports.queuePull = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['headers']['from'];
-
     models.message
-        .findOneAndUpdate({to: req.header(node_id_header), status: "pending"},
+        .findOneAndUpdate({to: req.get(node_id_header), status: "pending"},
             {status: "processing"},
             {new: true})
         .sort({create_time: -1})
@@ -31,9 +30,10 @@ exports.queuePush = function (req, res, next) {
     var input_data = {};
     var headers = req.app.get('config')['headers'];
 
-    input_data['to'] = req.header(headers['to'] || null);
-    input_data['from'] = req.header(headers['from'] || null);
-    input_data['status'] = req.header(headers['status'] || null);
+    input_data['to'] = req.get(headers['to']) || null;
+    input_data['from'] = req.get(headers['from']) || null;
+    input_data['status'] = req.get(headers['status']) || null;
+    input_data['data_type'] = req.get(headers['data_type']) || req.get('Content-Type');
     input_data['data'] = req.body;
 
     var message = new models.message(input_data);
@@ -54,7 +54,7 @@ exports.ack = function (req, res, next) {
     var node_id_header = req.app.get('config')['headers']['from'];
 
     models.message.findOneAndUpdate({
-            _id: req.params.message_id, to: req.header(node_id_header), status: "processing"
+            _id: req.params.message_id, to: req.get(node_id_header), status: "processing"
         },
         {status: "processed", processed_time: new Date()},
         {runValidators: true, multi: false, upsert: false, new: true},

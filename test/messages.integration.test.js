@@ -7,7 +7,7 @@ var supertest = require('supertest');
 var should = require('should');
 var model = require('../models/models');
 
-var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
+var request = supertest.agent('http://localhost:' + process.env.SCIROCCO_PORT);
 var server;
 var config = require('../config');
 
@@ -48,7 +48,8 @@ describe('Testing messages resource.', function () {
             var message = new model.message({
                 to: 'af123',
                 from: 'af123',
-                data: {"name": "tester", "love": true}
+                data: {"name": "tester", "love": true},
+                data_type: "application/json"
             });
             message.save(function (err, res) {
 
@@ -58,6 +59,7 @@ describe('Testing messages resource.', function () {
                 request.patch(config.paths.messages + '/' + res.id)
                     .set('Authorization', config.master_token)
                     .set(config.headers.from, 'af123')
+                    .set('Content-Type', 'application/json')
                     .send({
                             "name": "tester2",
                             "love": false
@@ -87,16 +89,19 @@ describe('Testing messages resource.', function () {
             var messages = [
                 {
                     _id: toDeleteId,
-                    to: 'af123',
-                    from: 'af123',
+                    to: "af123",
+                    from: "af123",
                     status: "pending",
                     data: {name: "test"},
+                    data_type: "application/json"
                 },
                 {
                     to: 'af123' + "23",
                     from: 'af123' + "23",
                     status: "pending",
                     data: {name: "test"},
+                    data_type: "application/json"
+
                 }
             ];
 
@@ -125,24 +130,30 @@ describe('Testing messages resource.', function () {
 
             var messages = [
                 {
-                    to: 'af123',
-                    from: 'af123',
+                    to: "af123",
+                    from: "af123",
                     status: "pending",
-                    data: {name: "test"}
+                    data: {name: "test"},
+                    data_type: "application/json"
+
                 },
                 {
-                    to: 'af123',
-                    from: 'af123',
+                    to: "af123",
+                    from: "af123",
                     status: "pending",
-                    data: {name: "test"}
+                    data: {name: "test"},
+                    data_type: "application/json"
+
                 },
                 /// This message must not be deleted, because it not belongs or emitted
                 /// to testing node.
                 {
-                    to: 'af123' + "23",
-                    from: 'af123' + "23",
+                    to: "af123" + "23",
+                    from: "af123" + "23",
                     status: "pending",
                     data: {name: "test"},
+                    data_type: "application/json"
+
                 }
             ];
 

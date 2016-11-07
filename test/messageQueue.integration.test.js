@@ -7,7 +7,7 @@ var supertest = require('supertest');
 var should = require('should');
 var model = require('../models/models');
 
-var request = supertest.agent('http://localhost:' + process.env.APP_PORT);
+var request = supertest.agent('http://localhost:' + process.env.SCIROCCO_PORT);
 var server;
 var config = require('../config');
 var uuid = require('node-uuid');
@@ -47,17 +47,20 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to: 'af123',
-                from: 'af123',
+                to: "af123",
+                from: "af123",
                 status: "pending",
-                data: {name: "test"}
+                data: {name: "test"},
+                data_type: "application/json"
 
             },
             {
                 to: 'af123',
                 from: 'af123',
                 status: "pending",
-                data: {name: "test"}
+                data: {name: "test"},
+                data_type: "application/json"
+
             }
         ];
 
@@ -90,6 +93,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
+            .set('Content-Type', 'application/json')
             .set(config.headers.from, 'af123')
             .set(config.headers.to, "09af1")
             .send({name: "test"})
@@ -109,7 +113,6 @@ describe('Testing messageQueue resource.', function () {
     });
 
     it("Should ack an existing message as processed.", function (done) {
-        //TODO continue here ....
         /// Post the message.
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
@@ -152,6 +155,7 @@ describe('Testing messageQueue resource.', function () {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
+            .set('Content-Type', 'application/json')
             .set(config.headers.from, 'af123')
             .set(config.headers.to, '09af1')
             .set(config.headers.status, 'pending')
@@ -177,6 +181,7 @@ describe('Testing messageQueue resource.', function () {
             .set('Authorization', config.master_token)
             //.set(config.headers.from, 'af123')
             .set(config.headers.to, '09af1')
+            .set('Content-Type', 'application/json')
             .set(config.headers.status, 'pending')
             .send({name: "test"})
             .expect(400)
@@ -199,6 +204,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
                 .set(config.headers.to, 'af123')
+                .set('Content-Type', 'application/json')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -238,6 +244,7 @@ describe('Testing messageQueue resource.', function () {
                 .set(config.headers.from, 'af123')
                 .set(config.headers.to, 'af123')
                 .set(config.headers.status, 'processing')
+                .set('Content-Type', 'application/json')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -265,6 +272,7 @@ describe('Testing messageQueue resource.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
+                .set('Content-Type', 'application/json')
                 .set(config.headers.to, 'af123')
                 .set(config.headers.status, 'scheduled')
                 .send({name: "test"})
@@ -294,6 +302,7 @@ describe('Testing messageQueue resource.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
+                .set('Content-Type', 'application/json')
                 .set(config.headers.to, 'af123')
                 .set(config.headers.status, 'pending')
                 .send({name: "test"})
@@ -323,6 +332,7 @@ describe('Testing messageQueue resource.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
+                .set('Content-Type', 'application/json')
                 .set(config.headers.to, 'af123')
                 .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
                 .send({name: "test"})
@@ -345,6 +355,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Authorization', config.master_token)
                 .set(config.headers.from, 'af123')
                 .set(config.headers.to, 'af123')
+                .set('Content-Type', 'application/json')
                 .set(config.headers.tries, 23)
                 .set(config.headers.update_time, new Date())
                 .set(config.headers.scheduled_time, new Date())
@@ -392,7 +403,7 @@ describe('Testing messageQueue resource.', function () {
                 .set(config.headers.to, 'af123')
                 .set('Content-Type', 'text/plain')
                 .send('string')
-                .expect('Content-Type', /plain/)
+                .expect('Content-Type', /text/)
                 .expect('string', done);
         });
 });

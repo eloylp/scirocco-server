@@ -1,8 +1,11 @@
-/// Load environment, if proceed
+/// Load environment.
 
-if (!process.env.NO_APP_FILE_ENV) {
-    var env = require('node-env-file');
+var env = require('node-env-file');
+try {
     env(__dirname + '/.env');
+} catch (err) {
+    console.error("Error reading .env file. You can copy an example from .env.dist .");
+    process.exit(1);
 }
 
 /// Dependencies
@@ -18,8 +21,8 @@ var app = express();
 
 /// Settings
 
-app.set('port', process.env.APP_PORT || 3000);
-app.set('env', process.env.APP_ENV);
+app.set('port', process.env.SCIROCCO_PORT || 8000);
+app.set('env', process.env.SCIROCCO_ENV || 'development');
 app.set('x-powered-by', false);
 app.set('json spaces', 40);
 app.set('config', config);
@@ -27,9 +30,11 @@ app.set('config', config);
 
 /// Middlewares add
 
+
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.text());
+app.use(bodyParser.json({limit: config.sizeLimits.json}));
+app.use(bodyParser.raw({limit: config.sizeLimits.raw}));
+app.use(bodyParser.text({limit: config.sizeLimits.text}));
 app.use(authMiddleware.check());
 app.use(requestTreatmentMiddleWare.checkContentType());
 
@@ -48,7 +53,7 @@ app.use('/messageQueue', messageQueueRoutes);
 app.use(errorHandlersMiddleWare.notFoundRedir());
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development' || app.get('env') === 'testing') {
+if (app.get('env') === 'development') {
     app.use(errorHandlersMiddleWare.develop());
 
 } else {
