@@ -14,6 +14,7 @@ var messageSchema = new mongoose.Schema({
     processing_time: {type: Date, index: true},
     error_time: {type: Date, index:true},
     processed_time: {type: Date, index:true},
+    data_type: {type:String, index:true, required: true, validate: validators.dataTypeField},
     data: {type: mongoose.Schema.Types.Mixed, required: true}
 
 });

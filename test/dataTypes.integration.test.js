@@ -33,23 +33,31 @@ describe('Testing api data types support.', function () {
 
     it("Should send a pdf file and get it without errors.", function (done) {
 
+        fs.readFile(path.join(__dirname, '/fixtures/tux.pdf'), function (err, file) {
+            if (err) throw err;
 
-        request.post(config.paths.messageQueue)
-            .set('Authorization', config.master_token)
-            .set('Content-Type', 'application/octet-stream')
-            .set(config.headers.from, 'af123')
-            .set(config.headers.to, "af123")
-            .send(fs.readFileSync(path.join(__dirname, '/fixtures/tux.pdf')))
-            .expect(201)
-            .end(function (err, res) {
-                if (err) {
-                    throw err;
-                }
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set('Content-Type', 'application/octet-stream')
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, "af123")
+                .send(file)
+                .expect(201)
+                .end(function (err, res) {
+                    if (err) throw err;
 
-                /// TODO MAKE  request to get the message and --> fs.writeFile(path.join(__dirname, '/fixtures/tux2.pdf'), res.body);
-                done();
-            });
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        // .expect('Content-Type', /octet-stream/)
+                        .expect(200)
+                        .end(function (err, res) {
+                            if (err) throw err;
 
+                            (res.body).should.be.equal(file.toString('base64'));
+                            done();
+                        });
+                });
+        });
     });
-
 });

@@ -15,6 +15,7 @@ exports.messageStatus = [
 
     validate({
         validator: "isIn",
+        passIfEmpty: true,
         arguments: [['scheduled', 'pending', 'processing', 'processed']],
         valid: ['scheduled', 'pending', 'processing', 'processed'],
         message: "Incorrect message status."
@@ -27,6 +28,15 @@ exports.description = [
         validator: "isLength",
         arguments: [3, 250],
         message: "Description should be between {ARGS[0]} and {ARGS[1]} characters."
+    })
+];
+
+exports.dataTypeField = [
+
+    validate({
+        validator: "isLength",
+        arguments: [1, 30],
+        message: "Data type field should be between {ARGS[0]} and {ARGS[1]} characters."
     })
 ];
 

@@ -58,21 +58,21 @@ describe('Testing output Adapter module, it is responsible to generate output he
 
     });
 
-    it('Should get the field data of an object', function(done){
-        var object = {"dat1":"1", "dat2": 22, "data": "data"};
+    it('Should get the field data of an object', function (done) {
+        var object = {"dat1": "1", "dat2": 22, "data": "data"};
         var data = module.getData(object);
         (data).should.be.equal(object.data);
         done();
     });
 
-    it('Should get null if the field data of an object not exists.', function(done){
-        var object = {"dat1":"1", "dat2": 22};
+    it('Should get null if the field data of an object not exists.', function (done) {
+        var object = {"dat1": "1", "dat2": 22};
         var data = module.getData(object);
         (data === null).should.be.true;
         done();
     });
 
-    it('Should correctly convert an attribute to a suitable HTTP header', function(done){
+    it('Should correctly convert an attribute to a suitable HTTP header', function (done) {
 
         var prefix = 'Prefix';
         var attr = 'update';
@@ -83,7 +83,7 @@ describe('Testing output Adapter module, it is responsible to generate output he
 
     });
 
-    it('Should correctly convert an attribute (with double word _) to a suitable HTTP header', function(done){
+    it('Should correctly convert an attribute (with double word _) to a suitable HTTP header', function (done) {
 
         var prefix = 'Prefix';
         var attr = 'update_time';
@@ -94,7 +94,7 @@ describe('Testing output Adapter module, it is responsible to generate output he
 
     });
 
-    it('Should correctly convert an attribute (with erroneus double _) to a suitable HTTP header', function(done){
+    it('Should correctly convert an attribute (with erroneus double _) to a suitable HTTP header', function (done) {
 
         var prefix = 'Prefix';
         var attr = 'update__time';
@@ -103,5 +103,44 @@ describe('Testing output Adapter module, it is responsible to generate output he
         done();
     });
 
+    it('Should NOT populate Content-Type header from scirocco data-type model field.', function (done) {
+        var res = {
+            calls: [],
+            headers: {},
+            json: function (data) {
+                this.calls.push(data);
+
+            },
+            send: function (data) {
+                this.calls.push(data);
+            },
+            set: function (header, value) {
+                this.headers[header] = value;
+            },
+            get: function (header) {
+                for (var h in this.headers) {
+                    if (header == h) {
+                        return this.headers[h];
+                    }
+                }
+                return false;
+            }
+        };
+        var resultsFixture = {
+            to: "af123",
+            from: "af1234",
+            data: "base64data",
+            data_type: "application/pdf"
+        };
+
+        resultsFixture.toObject = function () {
+            return this;
+        };
+        module.output(res, resultsFixture);
+        console.log(res.headers);
+        (res.headers).should.not.have.property('Content-Type');
+
+        done();
+    });
 
 });

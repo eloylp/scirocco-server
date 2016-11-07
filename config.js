@@ -18,7 +18,8 @@ module.exports = (function () {
         scheduled_time: [config.header_prefix, 'Scheduled', 'Time'].join('-'),
         processing_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
         processed_time: [config.header_prefix, 'Processed', 'Time'].join('-'),
-        error_time: [config.header_prefix, 'Processing', 'Time'].join('-')
+        error_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
+        data_type: [config.header_prefix, 'Data', 'Type'].join('-')
     };
 
     config.paths = {
@@ -26,6 +27,15 @@ module.exports = (function () {
         messageQueue: "/messageQueue",
         batches: "/batches",
         batchQueue: "/batchQueue"
+    };
+
+    /// Sizes units are controlled by third party lib. see
+
+    config.sizeLimits = {
+
+        text: [process.env.SCIROCCO_MAX_KB_SIZE_TEXT, 'kb'].join(''),
+        raw: [process.env.SCIROCCO_MAX_KB_SIZE_RAW, 'kb'].join(''),
+        json: [process.env.SCIROCCO_MAX_KB_SIZE_JSON, 'kb'].join('')
     };
 
     config.contentsAllowed = ['text/plain', 'application/json', 'application/octet-stream'];

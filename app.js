@@ -31,11 +31,10 @@ app.set('config', config);
 /// Middlewares add
 
 
-/// TODO pass this limits to config.
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.raw({limit: "1000kb"}));
-app.use(bodyParser.text());
+app.use(bodyParser.json({limit: config.sizeLimits.json}));
+app.use(bodyParser.raw({limit: config.sizeLimits.raw}));
+app.use(bodyParser.text({limit: config.sizeLimits.text}));
 app.use(authMiddleware.check());
 app.use(requestTreatmentMiddleWare.checkContentType());
 
