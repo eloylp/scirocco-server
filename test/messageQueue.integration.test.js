@@ -406,4 +406,33 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /text/)
                 .expect('string', done);
         });
+
+    it("Should return tries incremented by one when pull a message.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set('Content-Type', 'application/json')
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .send({name: "test"})
+                .expect(201)
+                .expect('Content-Type', /json/)
+                .expect('Location', /\/messages\/[0-9a-f]/)
+                .end(function (err, res) {
+                    if (err) {
+                        throw err;
+                    }
+
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (req, res) {
+                            (parseInt(res.headers[config.headers.tries.toLowerCase()])).should.be.exactly(1);
+                            done();
+                        });
+                });
+        });
 });
