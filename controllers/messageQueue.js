@@ -8,7 +8,10 @@ exports.queuePull = function (req, res, next) {
     var node_id_header = req.app.get('config')['headers']['from'];
     models.message
         .findOneAndUpdate({to: req.get(node_id_header), status: "pending"},
-            {status: "processing"},
+            {
+                status: "processing",
+                $inc: {"tries": 1}
+            },
             {new: true})
         .sort({create_time: -1})
         .exec(function (err, result) {
