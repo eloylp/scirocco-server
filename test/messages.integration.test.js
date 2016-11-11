@@ -40,7 +40,7 @@ describe('Testing messages resource.', function () {
                 });
         });
 
-    it("Should bring all messages pushed.",
+    it("Should bring all messages pushed in creation order desc.",
         function (done) {
 
             var messages = [
