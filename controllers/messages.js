@@ -4,12 +4,13 @@ var outPutTreatement = require('../models/outputAdapter');
 
 exports.index = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
-    var max_config_limit = req.app.get('config')['max_pull_messages_allowed'];
-    var limit = (req.query.limit <= max_config_limit ? req.query.limit : false) || max_config_limit;
+    var config = req.app.get('config');
+    var node_id_header = config['headers']['from'];
+    var max_config_limit = config['max_pull_messages_allowed'];
+    var limit = parseInt((req.query.limit <= max_config_limit ? req.query.limit : false)) || max_config_limit;
 
     models.message
-        .find({$or: [{to_node_id: req.get(node_id_header)}, {from_node_id: req.get(node_id_header)}]})
+        .find({$or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]})
         .sort({create_time: -1})
         .limit(limit)
         .exec(function (err, result) {
@@ -20,7 +21,16 @@ exports.index = function (req, res, next) {
                 res.status(204);
                 res.end();
             } else {
-                res.json(result);
+                var resultDump = [];
+                var allowedKeys = Object.keys(config.headers);
+                allowedKeys.push('data');
+
+                for (var i = 0, l = result.length; i < l; i++) {
+                    msg = result[i].toObject();
+                    outPutTreatement.clearUnWantedKeys(msg, allowedKeys);
+                    resultDump.push(msg);
+                }
+                res.json(resultDump);
             }
         });
 };
