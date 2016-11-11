@@ -34,12 +34,92 @@ describe('Testing messages resource.', function () {
                 .set(config.headers.from, 'af123')
                 .expect(204)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
                     (res.body).should.be.an.instanceOf(Object);
                     done();
                 });
+        });
+
+    it("Should bring all messages pushed in creation order desc.",
+        function (done) {
+
+            var messages = [
+                {
+                    to: "af123",
+                    from: "af123",
+                    status: "pending",
+                    data: {name: "test"},
+                    data_type: "application/json"
+                },
+                {
+                    to: 'af123',
+                    from: 'af123',
+                    status: "pending",
+                    data: {name: "test2"},
+                    data_type: "application/json"
+
+                }
+            ];
+
+            model.message.insertMany(messages, function (err, res) {
+
+                if (err)  throw err;
+
+                request.get(config.paths.messages)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err)  throw err;
+
+                        (res.body).should.be.instanceOf(Object);
+                        (res.body.length).should.be.equal(2);
+                        (res.body[0].data.name).should.be.equal('test');
+                        (res.body[1].data.name).should.be.equal('test2');
+                        done();
+                    });
+            });
+        });
+
+    it("Should bring all messages pushed, limited results by param.",
+        function (done) {
+
+            var messages = [
+                {
+                    to: "af123",
+                    from: "af123",
+                    status: "pending",
+                    data: {name: "test"},
+                    data_type: "application/json"
+                },
+                {
+                    to: 'af123',
+                    from: 'af123',
+                    status: "pending",
+                    data: {name: "test2"},
+                    data_type: "application/json"
+
+                }
+            ];
+
+            model.message.insertMany(messages, function (err, res) {
+
+                if (err)  throw err;
+
+                request.get([config.paths.messages, '?', 'limit', '=', '1'].join(''))
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err)  throw err;
+
+                        (res.body).should.be.instanceOf(Object);
+                        (res.body.length).should.be.equal(1);
+                        done();
+                    });
+            });
         });
 
     it("Should update previously created message and return it modified.",
@@ -53,9 +133,8 @@ describe('Testing messages resource.', function () {
             });
             message.save(function (err, res) {
 
-                if (err) {
-                    throw err;
-                }
+                if (err)  throw err;
+
                 request.patch(config.paths.messages + '/' + res.id)
                     .set('Authorization', config.master_token)
                     .set(config.headers.from, 'af123')
@@ -68,9 +147,7 @@ describe('Testing messages resource.', function () {
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
 
-                        if (err) {
-                            throw err;
-                        }
+                        if (err)  throw err;
 
                         (res.headers).should.have.ownProperty(config.headers.update_time.toLowerCase());
                         (res.body).should.be.an.instanceOf(Object).and.have.property('name');
@@ -107,16 +184,17 @@ describe('Testing messages resource.', function () {
 
             model.message.insertMany(messages, function (err, res) {
 
-                if (err) {
-                    throw err;
-                }
+                if (err)  throw err;
 
                 request.delete(config.paths.messages + '/' + toDeleteId)
                     .set('Authorization', config.master_token)
                     .set(config.headers.from, 'af123')
                     .expect(200)
                     .expect('Content-Type', /json/)
-                    .end(function (req, res) {
+                    .end(function (err, res) {
+                        if (err) {
+                            throw err;
+                        }
 
                         (res.body.ok).should.be.true;
                         (res.body.n).should.be.equal(1);
@@ -158,9 +236,7 @@ describe('Testing messages resource.', function () {
             ];
 
             model.message.insertMany(messages, function (err, res) {
-                if (err) {
-                    throw err;
-                }
+                if (err)  throw err;
 
                 request.delete(config.paths.messages)
                     .set('Authorization', config.master_token)
@@ -168,9 +244,7 @@ describe('Testing messages resource.', function () {
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
-                        if (err) {
-                            throw err;
-                        }
+                        if (err)  throw err;
                         (res.body).should.be.instanceOf(Object);
                         (res.body.ok).should.be.true;
                         (res.body.n).should.be.equal(2);
