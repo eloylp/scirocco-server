@@ -420,17 +420,43 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)throw err;
 
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
                         .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
-                        .end(function (req, res) {
+                        .end(function (err, res) {
+                            if (err)throw err;
+
                             (parseInt(res.headers[config.headers.tries.toLowerCase()])).should.be.exactly(1);
+                            done();
+                        });
+                });
+        });
+
+    it("Should return 404 trying to ack a non previously pulled  message.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set('Content-Type', 'application/json')
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .send({name: "test"})
+                .expect(201)
+                .expect('Content-Type', /json/)
+                .expect('Location', /\/messages\/[0-9a-f]/)
+                .end(function (err, res) {
+                    if (err)throw err;
+                    request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join('/'))
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(404)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err)throw err;
                             done();
                         });
                 });
