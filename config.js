@@ -1,8 +1,11 @@
-// TODO IMPROVE THIS HEADER PREFIX.
-
 module.exports = (function () {
 
-    var config = new Object();
+    var config = {};
+
+    config.environment = process.env.SCIROCCO_ENV || 'development';
+    config.port = parseInt(process.env.SCIROCCO_PORT) || 8000;
+    config.mongoUrl = process.env.SCIROCCO_MONGO_URL || 'mongodb://localhost/scirocco-server';
+    config.xPoweredBy = false;
 
     config.header_prefix = "Scirocco";
 
@@ -33,15 +36,15 @@ module.exports = (function () {
 
     config.sizeLimits = {
 
-        text: [process.env.SCIROCCO_MAX_KB_SIZE_TEXT, 'kb'].join(''),
-        raw: [process.env.SCIROCCO_MAX_KB_SIZE_RAW, 'kb'].join(''),
-        json: [process.env.SCIROCCO_MAX_KB_SIZE_JSON, 'kb'].join('')
+        text: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_TEXT || 100), 'kb'].join(''),
+        raw: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_RAW || 100), 'kb'].join(''),
+        json: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_JSON || 100), 'kb'].join('')
     };
 
+    config.jsonSpaces = 40;
     config.contentsAllowed = ['text/plain', 'application/json', 'application/octet-stream'];
-
     config.master_token = process.env.SCIROCCO_MASTER_TOKEN || "DEFAULT_TOKEN";
-    config.max_pull_messages_allowed = 100;
+    config.max_get_all_messages = parseInt(process.env.SCIROCCO_MAX_GET_ALL_MESSAGES || 100);
     return config;
 
 })();
