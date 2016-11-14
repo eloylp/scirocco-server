@@ -10,7 +10,7 @@ var messageSchema = new mongoose.Schema({
     tries: {type: Number, index: true, validate: validators.integerUnsigned},
     created_time: {type: Date, index: true},
     update_time: {type: Date, index: true},
-    scheduled_time: {type: Date, index: true},
+    scheduled_time: {type: Date, index: true, min: Date.now()},
     processing_time: {type: Date, index: true},
     error_time: {type: Date, index:true},
     processed_time: {type: Date, index:true},
