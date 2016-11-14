@@ -35,10 +35,9 @@ module.exports = (function () {
     /// Sizes units are controlled by third party lib. see https://www.npmjs.com/package/bytes
 
     config.sizeLimits = {
-
+        json: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_JSON || 100), 'kb'].join(''),
         text: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_TEXT || 100), 'kb'].join(''),
-        raw: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_RAW || 100), 'kb'].join(''),
-        json: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_JSON || 100), 'kb'].join('')
+        raw: [parseFloat(process.env.SCIROCCO_MAX_KB_SIZE_RAW || 1000), 'kb'].join('')
     };
 
     config.jsonSpaces = 40;
