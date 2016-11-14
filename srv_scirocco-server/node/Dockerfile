@@ -2,11 +2,18 @@ FROM debian:stable
 
 MAINTAINER <eloy@sandboxwebs.com>
 
+ENV SCIROCCO_ENV
+ENV SCIROCCO_PORT
+ENV SCIROCCO_MONGO_URL
+ENV SCIROCCO_MASTER_TOKEN
+ENV SCIROCCO_MAX_KB_SIZE_RAW
+ENV SCIROCCO_MAX_KB_SIZE_TEXT
+ENV SCIROCCO_MAX_KB_SIZE_JSON
+ENV SCIROCCO_MAX_GET_ALL_MESSAGES
+
 COPY docker-entrypoint.sh /
 
-RUN echo "Europe/Madrid" > /etc/timezone \
-&& dpkg-reconfigure -f noninteractive tzdata \
-&& apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y \
+RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y \
 && apt-get install -y curl wget git \
 && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
 && apt-get install -y nodejs \

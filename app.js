@@ -1,13 +1,14 @@
 /// Load environment.
+if (!process.env.SCIROCCO_NO_ENV_FILE) {
 
-var env = require('node-env-file');
-try {
-    env(__dirname + '/.env');
-} catch (err) {
-    console.error("Error reading .env file. You can copy an example from .env.dist .");
-    process.exit(1);
+    var env = require('node-env-file');
+    try {
+        env(__dirname + '/.env');
+    } catch (err) {
+        console.error("Error reading .env file. You can copy an example from .env.dist .");
+        process.exit(1);
+    }
 }
-
 /// Dependencies
 
 var config = require('./config.js');
@@ -21,10 +22,10 @@ var app = express();
 
 /// Settings
 
-app.set('port', process.env.SCIROCCO_PORT || 8000);
-app.set('env', process.env.SCIROCCO_ENV || 'development');
-app.set('x-powered-by', false);
-app.set('json spaces', 40);
+app.set('port', config.port);
+app.set('env', config.environment);
+app.set('x-powered-by', config.xPoweredBy);
+app.set('json spaces', config.jsonSpaces);
 app.set('config', config);
 
 
