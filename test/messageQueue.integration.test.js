@@ -266,35 +266,6 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Should accept scheduled state in message push.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set('Content-Type', 'application/json')
-                .set(config.headers.to, 'af123')
-                .set(config.headers.status, 'scheduled')
-                .send({name: "test"})
-                .expect(201)
-                .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
-                .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-
-                    request.get(res.header.location)
-                        .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
-                        .expect(200)
-                        .expect('Content-Type', /json/)
-                        .end(function (req, res) {
-                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("scheduled");
-                            done();
-                        });
-                });
-        });
 
     it("Should accept pending state in message push.",
         function (done) {
@@ -358,7 +329,7 @@ describe('Testing messageQueue resource.', function () {
                 .set('Content-Type', 'application/json')
                 .set(config.headers.tries, 23)
                 .set(config.headers.update_time, new Date())
-                .set(config.headers.scheduled_time, new Date())
+                .set(config.headers.scheduled_time, new Date(Date.now() + 10000))
                 .set(config.headers.processing_time, new Date())
                 .set(config.headers.processed_time, new Date())
                 .set(config.headers.error_time, new Date())
@@ -460,5 +431,178 @@ describe('Testing messageQueue resource.', function () {
                             done();
                         });
                 });
+        });
+
+    it("Should requires scheduled time header to be in scheduled message.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'scheduled')
+                .set('Content-Type', 'application/json')
+                .send({name: "test"})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err)  throw err;
+                    (res.body.message).should.be.equal('An scheduled message requires the scheduled time header to be set.');
+                    done()
+                });
+        });
+
+    it("Should requires that the time header in scheduled message must be superior to the actual date.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'scheduled')
+                .set(config.headers.scheduled_time, new Date(Date.now - 10000))
+                .set('Content-Type', 'application/json')
+                .send({name: "test"})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err)  throw err;
+                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('scheduled_time');
+                    done()
+                });
+        });
+
+    it("Should requires scheduled time header in strict date format.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set(config.headers.status, 'scheduled')
+                .set(config.headers.scheduled_time, 'scheduled')
+                .set('Content-Type', 'application/json')
+                .send({name: "test"})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err)  throw err;
+                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('scheduled_time');
+                    done()
+                });
+        });
+
+    it("Should accept scheduled state in message push and see it correctly in messages endpoint.",
+        function (done) {
+
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.from, 'af123')
+                .set(config.headers.to, 'af123')
+                .set('Content-Type', 'application/json')
+                .set(config.headers.status, 'scheduled')
+                .set(config.headers.scheduled_time, new Date(Date.now() + 10000))
+                .send({name: "test"})
+                .expect(201)
+                .expect('Content-Type', /json/)
+                .expect('Location', /\/messages\/[0-9a-f]/)
+                .end(function (err, res) {
+                    if (err)  throw err;
+
+                    request.get(res.header.location)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err)  throw err;
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("scheduled");
+                            done();
+                        });
+                });
+        });
+
+    it("Should retrieve an scheduled message, that is inside the consuming time frame.",
+        function (done) {
+
+            var messages = [{
+                to: "af123",
+                from: "af123",
+                status: "scheduled",
+                scheduled_time: new Date(Date.now() + 1),
+                data: {name: "test"},
+                data_type: "application/json"
+            }];
+
+            model.message.insertMany(messages, function (err, res) {
+                if (err)  throw err;
+
+                setTimeout(function () {
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err)  throw err;
+
+                            done();
+                        });
+                }, 100);
+            });
+        });
+
+    it("Should NOT retrieve an scheduled message, that is OUTSIDE the consuming time frame.",
+        function (done) {
+
+            var messages = [{
+                to: "af123",
+                from: "af123",
+                status: "scheduled",
+                scheduled_time: new Date(Date.now() + 1000000),
+                data: {name: "test"},
+                data_type: "application/json"
+            }];
+
+            model.message.insertMany(messages, function (err, res) {
+                if (err)  throw err;
+
+                request.get(config.paths.messageQueue)
+                    .set('Authorization', config.master_token)
+                    .set(config.headers.from, 'af123')
+                    .expect(204)
+                    .end(function (err, res) {
+                        if (err)  throw err;
+                        done();
+                    });
+            });
+        });
+
+    it("Should retrieve an scheduled message in processing state.",
+        function (done) {
+
+            var messages = [{
+                to: "af123",
+                from: "af123",
+                status: "scheduled",
+                scheduled_time: new Date(Date.now() + 10),
+                data: {name: "test"},
+                data_type: "application/json"
+            }];
+
+            model.message.insertMany(messages, function (err, res) {
+                if (err)  throw err;
+
+                setTimeout(function () {
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .expect(config.headers.status , 'processing')
+                        .end(function (err, res) {
+                            if (err)  throw err;
+                            done();
+                        });
+                }, 100);
+            });
         });
 });
