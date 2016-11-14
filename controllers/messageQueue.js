@@ -7,7 +7,11 @@ exports.queuePull = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['headers']['from'];
     models.message
-        .findOneAndUpdate({to: req.get(node_id_header), status: "pending"},
+        .findOneAndUpdate(
+            {
+                to: req.get(node_id_header),
+                $or: [{status: "pending"}, {status: "scheduled", scheduled_time: {$lte: Date.now()}}]
+            },
             {
                 status: "processing",
                 $inc: {"tries": 1}
@@ -36,19 +40,25 @@ exports.queuePush = function (req, res, next) {
     input_data['to'] = req.get(headers['to']) || null;
     input_data['from'] = req.get(headers['from']) || null;
     input_data['status'] = req.get(headers['status']) || null;
+    input_data['scheduled_time'] = req.get(headers['scheduled_time']) || null;
     input_data['data_type'] = req.get(headers['data_type']) || req.get('Content-Type');
     input_data['data'] = req.body;
 
-    var message = new models.message(input_data);
-    message.save(function (err, result) {
-        if (err) {
-            next(err);
-        } else {
-            res.header('Location', '/messages/' + result._id);
-            res.status(201);
-            outputAdapter.output(res, result)
-        }
-    });
+    if (input_data['status'] == 'scheduled' && !req.get(headers['scheduled_time'])) {
+        res.status(400);
+        res.json({"message": "An scheduled message requires the scheduled time header to be set."});
+    } else {
+        var message = new models.message(input_data);
+        message.save(function (err, result) {
+            if (err) {
+                next(err);
+            } else {
+                res.header('Location', '/messages/' + result._id);
+                res.status(201);
+                outputAdapter.output(res, result)
+            }
+        });
+    }
 };
 
 

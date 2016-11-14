@@ -6,7 +6,7 @@ exports.index = function (req, res, next) {
 
     var config = req.app.get('config');
     var node_id_header = config['headers']['from'];
-    var max_config_limit = config['max_pull_messages_allowed'];
+    var max_config_limit = config['max_get_all_messages'];
     var limit = parseInt((req.query.limit <= max_config_limit ? req.query.limit : false)) || max_config_limit;
 
     models.message

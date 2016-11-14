@@ -5,11 +5,21 @@ services:
   scirocco_server:
     restart: always
     working_dir: /usr/src/app
+    environment:
+      - SCIROCCO_ENV
+      - SCIROCCO_PORT
+      - SCIROCCO_MONGO_URL
+      - SCIROCCO_MASTER_TOKEN
+      - SCIROCCO_MAX_KB_SIZE_RAW
+      - SCIROCCO_MAX_KB_SIZE_TEXT
+      - SCIROCCO_MAX_KB_SIZE_JSON
+      - SCIROCCO_MAX_GET_ALL_MESSAGES
+
     user: app
     build: node
     image: scirocco-server
     ports:
-      - "80:8000"
+      - "${SCIROCCO_DOCKER_HOST_PORT}:${SCIROCCO_PORT}"
     networks:
       scirocco_mongo:
         aliases:
