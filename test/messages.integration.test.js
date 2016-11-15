@@ -252,36 +252,4 @@ describe('Testing messages resource.', function () {
                     });
             });
         });
-
-    it("Should send and retrieve an scheduled message expecting scheduled time header and status 'scheduled'.",
-        function (done) {
-
-            var message = {
-                to: "af123",
-                from: "af123",
-                status: "scheduled",
-                scheduled_time: new Date(Date.now() + 10),
-                data: {name: "test"},
-                data_type: "application/json"
-            };
-
-            var messageModel = new model.message(message);
-            messageModel.save(function (err, res) {
-                if (err)  throw err;
-
-                setTimeout(function () {
-                    request.get([config.paths.messages, res.id].join('/'))
-                        .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
-                        .expect(200)
-                        .expect('Content-Type', /json/)
-                        .end(function (err, res) {
-                            if (err)  throw err;
-                            (res.headers[config.headers.scheduled_time.toLowerCase()]).should.not.be.null;
-                            (res.headers[config.headers.status.toLowerCase()]).should.be.equal('scheduled');
-                            done();
-                        });
-                }, 100);
-            });
-        });
 });

@@ -513,6 +513,8 @@ describe('Testing messageQueue resource.', function () {
                         .end(function (err, res) {
                             if (err)  throw err;
                             (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("scheduled");
+                            (res.headers[config.headers.scheduled_time.toLowerCase()]).should.not.be.null;
+
                             done();
                         });
                 });
