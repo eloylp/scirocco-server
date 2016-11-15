@@ -32,7 +32,7 @@ exports.getData = function (object) {
 
     for (var attr in object) {
 
-        if (attr == 'data') {
+        if (attr == 'payload') {
             return object[attr];
         }
     }

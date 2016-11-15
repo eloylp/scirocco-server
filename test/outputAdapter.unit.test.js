@@ -59,9 +59,9 @@ describe('Testing output Adapter module, it is responsible to generate output he
     });
 
     it('Should get the field data of an object', function (done) {
-        var object = {"dat1": "1", "dat2": 22, "data": "data"};
+        var object = {"dat1": "1", "dat2": 22, "payload": "data"};
         var data = module.getData(object);
-        (data).should.be.equal(object.data);
+        (data).should.be.equal(object.payload);
         done();
     });
 
@@ -127,10 +127,10 @@ describe('Testing output Adapter module, it is responsible to generate output he
             }
         };
         var resultsFixture = {
-            to: "af123",
-            from: "af1234",
-            data: "base64data",
-            data_type: "application/pdf"
+            node_destination: "af123",
+            node_source: "af1234",
+            payload: "base64data",
+            payload_type: "application/pdf"
         };
 
         resultsFixture.toObject = function () {

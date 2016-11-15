@@ -10,8 +10,8 @@ module.exports = (function () {
     config.header_prefix = "Scirocco";
 
     config.headers = {
-        from: [config.header_prefix, 'From'].join('-'),
-        to: [config.header_prefix, 'To'].join('-'),
+        node_source: [config.header_prefix, 'Node', 'Source'].join('-'),
+        node_destination: [config.header_prefix, 'Node', 'Destination'].join('-'),
         id: [config.header_prefix, 'Id'].join('-'),
         tries: [config.header_prefix, 'Tries'].join('-'),
         topic: [config.header_prefix, 'Topic'].join('-'),
@@ -22,7 +22,7 @@ module.exports = (function () {
         processing_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
         processed_time: [config.header_prefix, 'Processed', 'Time'].join('-'),
         error_time: [config.header_prefix, 'Processing', 'Time'].join('-'),
-        data_type: [config.header_prefix, 'Data', 'Type'].join('-')
+        payload_type: [config.header_prefix, 'Payload', 'Type'].join('-')
     };
 
     config.paths = {

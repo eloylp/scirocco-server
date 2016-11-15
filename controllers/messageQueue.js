@@ -5,11 +5,11 @@ var uuid = require('node-uuid');
 
 exports.queuePull = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
+    var node_id_header = req.app.get('config')['headers']['node_source'];
     models.message
         .findOneAndUpdate(
             {
-                to: req.get(node_id_header),
+                node_destination: req.get(node_id_header),
                 $or: [{status: "pending"}, {status: "scheduled", scheduled_time: {$lte: Date.now()}}]
             },
             {
@@ -37,12 +37,12 @@ exports.queuePush = function (req, res, next) {
     var input_data = {};
     var headers = req.app.get('config')['headers'];
 
-    input_data['to'] = req.get(headers['to']) || null;
-    input_data['from'] = req.get(headers['from']) || null;
+    input_data['node_destination'] = req.get(headers['node_destination']) || null;
+    input_data['node_source'] = req.get(headers['node_source']) || null;
     input_data['status'] = req.get(headers['status']) || null;
     input_data['scheduled_time'] = req.get(headers['scheduled_time']) || null;
-    input_data['data_type'] = req.get(headers['data_type']) || req.get('Content-Type');
-    input_data['data'] = req.body;
+    input_data['payload_type'] = req.get(headers['payload_type']) || req.get('Content-Type');
+    input_data['payload'] = req.body;
 
     if (input_data['status'] == 'scheduled' && !req.get(headers['scheduled_time'])) {
         res.status(400);
@@ -64,10 +64,10 @@ exports.queuePush = function (req, res, next) {
 
 exports.ack = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
+    var node_id_header = req.app.get('config')['headers']['node_source'];
 
     models.message.findOneAndUpdate({
-            _id: req.params.message_id, to: req.get(node_id_header), status: "processing"
+            _id: req.params.message_id, node_destination: req.get(node_id_header), status: "processing"
         },
         {status: "processed", processed_time: new Date()},
         {runValidators: true, multi: false, upsert: false, new: true},

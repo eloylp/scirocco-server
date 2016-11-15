@@ -39,8 +39,8 @@ describe('Testing api data types support.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set('Content-Type', 'application/octet-stream')
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, "af123")
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, "af123")
                 .send(file)
                 .expect(201)
                 .end(function (err, res) {
@@ -48,7 +48,7 @@ describe('Testing api data types support.', function () {
 
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         // .expect('Content-Type', /octet-stream/)
                         .expect(200)
                         .end(function (err, res) {
