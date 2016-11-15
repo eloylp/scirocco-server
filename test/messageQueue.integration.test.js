@@ -329,7 +329,6 @@ describe('Testing messageQueue resource.', function () {
                 .set('Content-Type', 'application/json')
                 .set(config.headers.tries, 23)
                 .set(config.headers.update_time, new Date())
-                .set(config.headers.scheduled_time, new Date(Date.now() + 10000))
                 .set(config.headers.processing_time, new Date())
                 .set(config.headers.processed_time, new Date())
                 .set(config.headers.error_time, new Date())
@@ -356,7 +355,6 @@ describe('Testing messageQueue resource.', function () {
                             (res.headers).should.have.ownProperty(config.headers.tries.toLowerCase());
                             (res.headers).should.have.ownProperty(config.headers.created_time.toLowerCase());
                             (res.headers).should.not.have.ownProperty(config.headers.update_time.toLowerCase());
-                            (res.headers).should.not.have.ownProperty(config.headers.scheduled_time.toLowerCase());
                             (res.headers).should.not.have.ownProperty(config.headers.processed_time.toLowerCase());
                             (res.headers).should.not.have.ownProperty(config.headers.error_time.toLowerCase());
                             (res.headers).should.not.have.ownProperty(config.headers.processed_time.toLowerCase());
@@ -478,7 +476,7 @@ describe('Testing messageQueue resource.', function () {
                 .set(config.headers.from, 'af123')
                 .set(config.headers.to, 'af123')
                 .set(config.headers.status, 'scheduled')
-                .set(config.headers.scheduled_time, 'scheduled')
+                .set(config.headers.scheduled_time, 'no valid format.')
                 .set('Content-Type', 'application/json')
                 .send({name: "test"})
                 .expect(400)
@@ -523,18 +521,18 @@ describe('Testing messageQueue resource.', function () {
     it("Should retrieve an scheduled message, that is inside the consuming time frame.",
         function (done) {
 
-            var messages = [{
+            var message = {
                 to: "af123",
                 from: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 1),
                 data: {name: "test"},
                 data_type: "application/json"
-            }];
+            };
 
-            model.message.insertMany(messages, function (err, res) {
+            var messageModel = new model.message(message);
+            messageModel.save(function (err, res) {
                 if (err)  throw err;
-
                 setTimeout(function () {
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
@@ -553,18 +551,18 @@ describe('Testing messageQueue resource.', function () {
     it("Should NOT retrieve an scheduled message, that is OUTSIDE the consuming time frame.",
         function (done) {
 
-            var messages = [{
+            var message = {
                 to: "af123",
                 from: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 1000000),
                 data: {name: "test"},
                 data_type: "application/json"
-            }];
+            };
 
-            model.message.insertMany(messages, function (err, res) {
+            var messageModel = new model.message(message);
+            messageModel.save(function (err, res) {
                 if (err)  throw err;
-
                 request.get(config.paths.messageQueue)
                     .set('Authorization', config.master_token)
                     .set(config.headers.from, 'af123')
@@ -579,16 +577,16 @@ describe('Testing messageQueue resource.', function () {
     it("Should retrieve an scheduled message in processing state.",
         function (done) {
 
-            var messages = [{
+            var message = {
                 to: "af123",
                 from: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 10),
                 data: {name: "test"},
                 data_type: "application/json"
-            }];
-
-            model.message.insertMany(messages, function (err, res) {
+            };
+            var messageModel = new model.message(message);
+            messageModel.save(function (err, res) {
                 if (err)  throw err;
 
                 setTimeout(function () {
@@ -597,9 +595,41 @@ describe('Testing messageQueue resource.', function () {
                         .set(config.headers.from, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
-                        .expect(config.headers.status , 'processing')
+                        .expect(config.headers.status, 'processing')
                         .end(function (err, res) {
                             if (err)  throw err;
+                            done();
+                        });
+                }, 100);
+            });
+        });
+
+    it("Should retrieve an scheduled message expecting scheduled time header.",
+        function (done) {
+
+            var message = {
+                to: "af123",
+                from: "af123",
+                status: "scheduled",
+                scheduled_time: new Date(Date.now() + 10),
+                data: {name: "test"},
+                data_type: "application/json"
+            };
+
+            var messageModel = new model.message(message);
+            messageModel.save(function (err, res) {
+                if (err)  throw err;
+                var scheduled_time = res.scheduled_time;
+
+                setTimeout(function () {
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.from, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err)  throw err;
+                            (res.headers[config.headers.scheduled_time.toLowerCase()]).should.not.be.null;
                             done();
                         });
                 }, 100);
