@@ -24,7 +24,6 @@ messageSchema.pre('save', function (next) {
     this.status = (this.status && this.status.match(/pending|scheduled/)) ? this.status : 'pending';
     this.tries = 0;
     this.created_time = new Date();
-    this.scheduled_time = null;
     this.processing_time = null;
     this.error_time = null;
     this.processed_time = null;
