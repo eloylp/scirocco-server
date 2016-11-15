@@ -30,7 +30,7 @@ describe('Testing messageQueue resource.', function () {
     it("Should return an empty object and a 204 status code if no messages remaining.", function (done) {
 
         request.get(config.paths.messageQueue)
-            .set(config.headers.from, 'af123')
+            .set(config.headers.node_source, 'af123')
             .set('Authorization', config.master_token)
             .expect(204)
             .end(function (err, res) {
@@ -47,19 +47,19 @@ describe('Testing messageQueue resource.', function () {
 
         var messages = [
             {
-                to: "af123",
-                from: "af123",
+                node_destination: "af123",
+                node_source: "af123",
                 status: "pending",
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
 
             },
             {
-                to: 'af123',
-                from: 'af123',
+                node_destination: 'af123',
+                node_source: 'af123',
                 status: "pending",
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
 
             }
         ];
@@ -72,7 +72,7 @@ describe('Testing messageQueue resource.', function () {
 
             request.get(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
+                .set(config.headers.node_source, 'af123')
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .end(function (err, res) {
@@ -81,8 +81,8 @@ describe('Testing messageQueue resource.', function () {
                         throw err;
                     }
 
-                    (res.headers[config.headers.to.toLowerCase()]).should.be.equal('af123');
-                    (res.headers[config.headers.from.toLowerCase()]).should.be.equal('af123');
+                    (res.headers[config.headers.node_destination.toLowerCase()]).should.be.equal('af123');
+                    (res.headers[config.headers.node_source.toLowerCase()]).should.be.equal('af123');
                     (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processing');
                     done();
                 });
@@ -94,8 +94,8 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             .set('Content-Type', 'application/json')
-            .set(config.headers.from, 'af123')
-            .set(config.headers.to, "09af1")
+            .set(config.headers.node_source, 'af123')
+            .set(config.headers.node_destination, "09af1")
             .send({name: "test"})
             .expect('Content-Type', /json/)
             .expect('Location', /\/messages\/[0-9a-f]/)
@@ -103,8 +103,8 @@ describe('Testing messageQueue resource.', function () {
             .end(function (err, res) {
 
                 (res.headers[config.headers.status.toLowerCase()]).should.be.equal('pending');
-                (res.headers[config.headers.from.toLowerCase()]).should.be.equal('af123');
-                (res.headers[config.headers.to.toLowerCase()]).should.be.equal('09af1');
+                (res.headers[config.headers.node_source.toLowerCase()]).should.be.equal('af123');
+                (res.headers[config.headers.node_destination.toLowerCase()]).should.be.equal('09af1');
                 (res.body).should.be.instanceOf(Object).and.have.property('name');
                 (res.body.name).should.be.equal('test');
 
@@ -117,8 +117,8 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             .set('Content-Type', 'application/json')
-            .set(config.headers.from, 'af123')
-            .set(config.headers.to, 'af123')
+            .set(config.headers.node_source, 'af123')
+            .set(config.headers.node_destination, 'af123')
             .send({"name": "tester"})
             .end(function (err, res) {
 
@@ -128,7 +128,7 @@ describe('Testing messageQueue resource.', function () {
                 /// Get the message.
                 request.get(config.paths.messageQueue)
                     .set('Authorization', config.master_token)
-                    .set(config.headers.from, 'af123')
+                    .set(config.headers.node_source, 'af123')
                     .end(function (err, res) {
 
                         if (err) {
@@ -137,7 +137,7 @@ describe('Testing messageQueue resource.', function () {
                         /// Ack message
                         request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join("/"))
                             .set('Authorization', config.master_token)
-                            .set(config.headers.from, 'af123')
+                            .set(config.headers.node_source, 'af123')
                             .end(function (err, res) {
                                 if (err) {
                                     throw err;
@@ -156,8 +156,8 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             .set('Content-Type', 'application/json')
-            .set(config.headers.from, 'af123')
-            .set(config.headers.to, '09af1')
+            .set(config.headers.node_source, 'af123')
+            .set(config.headers.node_destination, '09af1')
             .set(config.headers.status, 'pending')
             .send({
                 name: "test"
@@ -180,7 +180,7 @@ describe('Testing messageQueue resource.', function () {
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             //.set(config.headers.from, 'af123')
-            .set(config.headers.to, '09af1')
+            .set(config.headers.node_destination, '09af1')
             .set('Content-Type', 'application/json')
             .set(config.headers.status, 'pending')
             .send({name: "test"})
@@ -191,7 +191,7 @@ describe('Testing messageQueue resource.', function () {
                     throw err;
                 }
                 (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('from');
+                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('node_source');
                 done();
             });
     });
@@ -202,8 +202,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set('Content-Type', 'application/json')
                 .send({name: "test"})
                 .expect(201)
@@ -218,15 +218,15 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
 
                             (res.headers[config.headers.id.toLowerCase()]).should.be.exactly(resp.header.location.split("/").pop());
                             (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
-                            (res.headers[config.headers.from.toLowerCase()]).should.be.exactly('af123');
-                            (res.headers[config.headers.to.toLowerCase()]).should.be.exactly('af123');
+                            (res.headers[config.headers.node_source.toLowerCase()]).should.be.exactly('af123');
+                            (res.headers[config.headers.node_destination.toLowerCase()]).should.be.exactly('af123');
                             (res.headers[config.headers.tries.toLowerCase()]).should.be.exactly('0');
                             (res.body).should.be.an.instanceOf(Object).and.have.property('name');
                             (res.body.name).should.be.exactly("test");
@@ -241,8 +241,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'processing')
                 .set('Content-Type', 'application/json')
                 .send({name: "test"})
@@ -256,7 +256,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -272,9 +272,9 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
+                .set(config.headers.node_source, 'af123')
                 .set('Content-Type', 'application/json')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'pending')
                 .send({name: "test"})
                 .expect(201)
@@ -287,7 +287,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (req, res) {
@@ -302,9 +302,9 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
+                .set(config.headers.node_source, 'af123')
                 .set('Content-Type', 'application/json')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
                 .send({name: "test"})
                 .expect(400)
@@ -324,8 +324,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set('Content-Type', 'application/json')
                 .set(config.headers.tries, 23)
                 .set(config.headers.update_time, new Date())
@@ -343,7 +343,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
@@ -368,8 +368,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set('Content-Type', 'text/plain')
                 .send('string')
                 .expect('Content-Type', /text/)
@@ -382,8 +382,8 @@ describe('Testing messageQueue resource.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set('Content-Type', 'application/json')
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -393,7 +393,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
@@ -411,8 +411,8 @@ describe('Testing messageQueue resource.', function () {
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
                 .set('Content-Type', 'application/json')
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .send({name: "test"})
                 .expect(201)
                 .expect('Content-Type', /json/)
@@ -421,7 +421,7 @@ describe('Testing messageQueue resource.', function () {
                     if (err)throw err;
                     request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join('/'))
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(404)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {

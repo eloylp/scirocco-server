@@ -31,8 +31,8 @@ describe('Testing request treatment.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .send('string')
                 .expect(400)
                 .end(function (err, res) {
@@ -54,9 +54,9 @@ describe('Testing request treatment.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
-                .set(config.headers.data_type, '.tar.gz')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
+                .set(config.headers.payload_type, '.tar.gz')
                 .set('Content-Type', 'text/plain')
                 .send('string')
                 .expect(201)
@@ -65,10 +65,10 @@ describe('Testing request treatment.', function () {
                     if (err) throw err;
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /text\/html/)
-                        .expect(config.headers.data_type, '.tar.gz')
+                        .expect(config.headers.payload_type, '.tar.gz')
                         .end(function (err, res) {
                             if (err) throw err;
                             done();
@@ -81,8 +81,8 @@ describe('Testing request treatment.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set('Content-Type', 'text/plain')
                 .send('string')
                 .expect(201)
@@ -91,10 +91,10 @@ describe('Testing request treatment.', function () {
                     if (err) throw err;
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /text\/html/)
-                        .expect(config.headers.data_type, 'text/plain')
+                        .expect(config.headers.payload_type, 'text/plain')
                         .end(function (err, res) {
                             if (err) throw err;
                             done();

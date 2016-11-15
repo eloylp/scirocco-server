@@ -32,8 +32,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'scheduled')
                 .set('Content-Type', 'application/json')
                 .send({name: "test"})
@@ -50,8 +50,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'scheduled')
                 .set(config.headers.scheduled_time, new Date(Date.now - 10000))
                 .set('Content-Type', 'application/json')
@@ -69,8 +69,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set(config.headers.status, 'scheduled')
                 .set(config.headers.scheduled_time, 'no valid format.')
                 .set('Content-Type', 'application/json')
@@ -89,8 +89,8 @@ describe('Testing messageQueue resource.', function () {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
-                .set(config.headers.from, 'af123')
-                .set(config.headers.to, 'af123')
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
                 .set('Content-Type', 'application/json')
                 .set(config.headers.status, 'scheduled')
                 .set(config.headers.scheduled_time, new Date(Date.now() + 10000))
@@ -103,7 +103,7 @@ describe('Testing messageQueue resource.', function () {
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
@@ -120,12 +120,12 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             var message = {
-                to: "af123",
-                from: "af123",
+                node_destination: "af123",
+                node_source: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 1),
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
             };
 
             var messageModel = new model.message(message);
@@ -134,7 +134,7 @@ describe('Testing messageQueue resource.', function () {
                 setTimeout(function () {
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
@@ -150,12 +150,12 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             var message = {
-                to: "af123",
-                from: "af123",
+                node_destination: "af123",
+                node_source: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 1000000),
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
             };
 
             var messageModel = new model.message(message);
@@ -163,7 +163,7 @@ describe('Testing messageQueue resource.', function () {
                 if (err)  throw err;
                 request.get(config.paths.messageQueue)
                     .set('Authorization', config.master_token)
-                    .set(config.headers.from, 'af123')
+                    .set(config.headers.node_source, 'af123')
                     .expect(204)
                     .end(function (err, res) {
                         if (err)  throw err;
@@ -176,12 +176,12 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             var message = {
-                to: "af123",
-                from: "af123",
+                node_destination: "af123",
+                node_source: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 10),
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
             };
             var messageModel = new model.message(message);
             messageModel.save(function (err, res) {
@@ -190,7 +190,7 @@ describe('Testing messageQueue resource.', function () {
                 setTimeout(function () {
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .expect(config.headers.status, 'processing')
@@ -206,12 +206,12 @@ describe('Testing messageQueue resource.', function () {
         function (done) {
 
             var message = {
-                to: "af123",
-                from: "af123",
+                node_destination: "af123",
+                node_source: "af123",
                 status: "scheduled",
                 scheduled_time: new Date(Date.now() + 10),
-                data: {name: "test"},
-                data_type: "application/json"
+                payload: {name: "test"},
+                payload_type: "application/json"
             };
 
             var messageModel = new model.message(message);
@@ -222,7 +222,7 @@ describe('Testing messageQueue resource.', function () {
                 setTimeout(function () {
                     request.get(config.paths.messageQueue)
                         .set('Authorization', config.master_token)
-                        .set(config.headers.from, 'af123')
+                        .set(config.headers.node_source, 'af123')
                         .expect(200)
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {

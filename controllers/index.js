@@ -4,6 +4,6 @@ exports.index = function(req, res) {
 
         "name": "DDS endpoint.",
         "author": "eloylp",
-        "source": "https://github.com/eloylp/jsdds"
+        "source": "https://github.com/eloylp/scirocco-server"
     });
 };

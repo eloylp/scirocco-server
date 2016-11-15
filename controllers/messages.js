@@ -5,12 +5,12 @@ var outPutTreatement = require('../models/outputAdapter');
 exports.index = function (req, res, next) {
 
     var config = req.app.get('config');
-    var node_id_header = config['headers']['from'];
+    var node_id_header = config['headers']['node_source'];
     var max_config_limit = config['max_get_all_messages'];
     var limit = parseInt((req.query.limit <= max_config_limit ? req.query.limit : false)) || max_config_limit;
 
     models.message
-        .find({$or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]})
+        .find({$or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]})
         .sort({create_time: -1})
         .limit(limit)
         .exec(function (err, result) {
@@ -23,7 +23,7 @@ exports.index = function (req, res, next) {
             } else {
                 var resultDump = [];
                 var allowedKeys = Object.keys(config.headers);
-                allowedKeys.push('data');
+                allowedKeys.push('payload');
 
                 for (var i = 0, l = result.length; i < l; i++) {
                     msg = result[i].toObject();
@@ -38,14 +38,14 @@ exports.index = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
+    var node_id_header = req.app.get('config')['headers']['node_source'];
 
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,
-            $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
+            $or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]
         },
-        {data: req.body},
+        {payload: req.body},
         {runValidators: true, new: true},
         function (err, results) {
 
@@ -62,12 +62,12 @@ exports.update = function (req, res, next) {
 
 exports.show = function (req, res) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
+    var node_id_header = req.app.get('config')['headers']['node_source'];
     models.message
         .findOne(
             {
                 _id: req.params.message_id,
-                $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
+                $or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]
             }
         )
         .exec(function (err, result) {
@@ -86,10 +86,10 @@ exports.show = function (req, res) {
 
 exports.delete = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
+    var node_id_header = req.app.get('config')['headers']['node_source'];
     models.message.remove({
             _id: req.params.message_id,
-            $or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]
+            $or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]
         },
         function (err, results) {
             if (err) {
@@ -102,8 +102,8 @@ exports.delete = function (req, res, next) {
 
 exports.deleteAll = function (req, res, next) {
 
-    var node_id_header = req.app.get('config')['headers']['from'];
-    models.message.remove({$or: [{to: req.get(node_id_header)}, {from: req.get(node_id_header)}]},
+    var node_id_header = req.app.get('config')['headers']['node_source'];
+    models.message.remove({$or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]},
         function (err, results) {
             if (err) {
                 next(err);
