@@ -62,6 +62,14 @@ curl -H 'Authorization: DEFAULT_TOKEN' http://localhost
 
 **NOTE:** If you already have a mongo instance and only want to execute the Scirocco endpoint, feel free for tune up [this docker file](srv_scirocco-server/node/Dockerfile) . Remeber to use environment variables for config as described above.
 
+## Running tests
+For running tests , you will need a mongodb instance at localhost.
 
+```bash
+git clone https://github.com/eloylp/scirocco-server.git
+cd scirocco-server
+npm test
+```
 ## Available client libraries
 * [Scirocco-pyclient](https://github.com/eloylp/scirocco-pyclient) , writed in python.
+
