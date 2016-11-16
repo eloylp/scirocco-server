@@ -29,7 +29,7 @@ this environment vars at start up:
  
 None of them are mandatory but if you do not set it, they will set its own default, you can take a look [here](config.js)
 
-**NOTE:** If you already have a docker infrastructure , and want this to be one more service, feel free for tune up [this compose file](srv_scirocco-server/docker-compose.yml)
+**NOTE:** If you already have a docker infrastructure , and want this to be one more service, feel free for tune up [this compose file](srv_scirocco-server/docker-compose.yml) .
 
 #### Standalone
 If you want to simply execute the server from nodejs interpreter, you can copy the [.env.dist](.env.dist) file to .env,
