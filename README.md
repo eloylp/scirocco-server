@@ -42,9 +42,7 @@ cp .env.dist .env
 # modify .env
 npm start
 ```
-
-
-## Bringing up the full containerized service version (With mongo)
+## Bringing up the service with Docker
 
 We use Docker as containerization tool. We have splitted the service in two containers, one for the nodejs server and second one
 for mongodb.
@@ -56,13 +54,14 @@ git clone https://github.com/eloylp/scirocco-server.git
 cd scirocco-server/srv_scirocco-server
 SCIROCCO_DOCKER_HOST_PORT=80 SCIROCCO_PORT=8000 SCIROCCO_MONGO_URL=mongodb://scirocco-db/scirocco-server docker-compose up
 ```
-Take care about environment variables. In this case, now you can reach the service
+Take care about environment variables. In this case, you can reach now the service
 
 ```bash
 curl -H 'Authorization: DEFAULT_TOKEN' http://localhost
 ```
 
+**NOTE:** If you already have a mongo instance and only want to execute the Scirocco endpoint, feel free for tune up [this docker file](srv_scirocco-server/node/Dockerfile) . Remeber to use environment variables for config as described above.
 
 
-
-
+## Available client libraries
+* [Scirocco-pyclient](https://github.com/eloylp/scirocco-pyclient) , writed in python.
