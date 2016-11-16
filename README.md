@@ -7,8 +7,10 @@ Scirocco its a data distribution service (near realtime) over the HTTP protocol.
 ## Organization
 
 This readme only shows how to bring up this service and links for some of the available client libraries for interact with it.
-For more information about the project internals, please visit the [wiki](wiki) .
+For more information about the project internals, please visit the [wiki](../../wiki) .
 
 If you want to contribute, please read [this](CONTRIBUTING.md)
+
+
 
 
