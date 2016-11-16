@@ -2,7 +2,7 @@
 # Scirocco Server
 [![Build Status](https://travis-ci.org/eloylp/scirocco-server.svg?branch=develop)](https://travis-ci.org/eloylp/scirocco-server)
 
-Scirocco its a data distribution service (near realtime) over the HTTP protocol. It can act as data bus and gateway. Its a way to simplify inter process communications (IPC).
+Scirocco its a data distribution service (near realtime) over the HTTP protocol. It can act as data bus and gateway. Its a way to centralize and simplify inter process communications (IPC).
 
 ## Organization
 
