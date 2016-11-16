@@ -12,7 +12,10 @@ For more information about the endpoints , requests and project internals, pleas
 If you want to contribute, please read [this](CONTRIBUTING.md)
 
 ## Setting up the service
-This service can be launched in everal ways. If you choose to follow the main stream and use docker you must take care about 
+
+#### For docker
+
+This service can be launched in several ways. If you choose to follow the main stream and use docker you must take care about 
 this environment vars at start up:
 
  * SCIROCCO_ENV                   - 'development' or 'production'
@@ -24,9 +27,24 @@ this environment vars at start up:
  * SCIROCCO_MAX_KB_SIZE_JSON      -  unsigned integer
  * SCIROCCO_MAX_GET_ALL_MESSAGES  -  unsigned integer
  
-None of them are mandatory , if you do not set some, they will set its own default, you can take a look [here](config.js)
+None of them are mandatory but if you do not set it, they will set its own default, you can take a look [here](config.js)
 
-## Bringing up the full containerized service version
+**NOTE:** If you already have a docker infrastructure , and want this to be one more service, feel free for tune up [this compose file](srv_scirocco-server/docker-compose.yml)
+
+#### Standalone
+If you want to simply execute the server from nodejs interpreter, you can copy the [.env.dist](.env.dist) file to .env,
+set the values with your favourite editor an then run "npm start" from the root of the project.
+
+```bash
+git clone https://github.com/eloylp/scirocco-server.git
+cd scirocco-server
+cp .env.dist .env
+# modify .env
+npm start
+```
+
+
+## Bringing up the full containerized service version (With mongo)
 
 We use Docker as containerization tool. We have splitted the service in two containers, one for the nodejs server and second one
 for mongodb.
