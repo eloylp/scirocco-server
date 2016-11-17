@@ -43,7 +43,8 @@ exports.update = function (req, res, next) {
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,
-            node_source: req.get(node_id_header)
+            node_source: req.get(node_id_header),
+            $or: [{status: 'pending'}, {status: 'scheduled'}]
         },
         {payload: req.body},
         {runValidators: true, new: true},
