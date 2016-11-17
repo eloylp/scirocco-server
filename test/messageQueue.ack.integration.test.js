@@ -13,7 +13,7 @@ var config = require('../config');
 var uuid = require('node-uuid');
 
 
-describe('Testing messageQueue resource.', function () {
+describe('Testing messageQueue ACK operation resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
