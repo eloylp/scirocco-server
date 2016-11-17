@@ -112,45 +112,6 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Should ack an existing message as processed.", function (done) {
-        /// Post the message.
-        request.post(config.paths.messageQueue)
-            .set('Authorization', config.master_token)
-            .set('Content-Type', 'application/json')
-            .set(config.headers.node_source, 'af123')
-            .set(config.headers.node_destination, 'af123')
-            .send({"name": "tester"})
-            .end(function (err, res) {
-
-                if (err) {
-                    throw err;
-                }
-                /// Get the message.
-                request.get(config.paths.messageQueue)
-                    .set('Authorization', config.master_token)
-                    .set(config.headers.node_source, 'af123')
-                    .end(function (err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        /// Ack message
-                        request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join("/"))
-                            .set('Authorization', config.master_token)
-                            .set(config.headers.node_source, 'af123')
-                            .end(function (err, res) {
-                                if (err) {
-                                    throw err;
-                                }
-
-                                (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processed');
-                                done();
-
-                            });
-                    });
-            });
-    });
-
     it("Should push a message and return the created one.", function (done) {
 
         request.post(config.paths.messageQueue)
@@ -400,32 +361,6 @@ describe('Testing messageQueue resource.', function () {
                             if (err)throw err;
 
                             (parseInt(res.headers[config.headers.tries.toLowerCase()])).should.be.exactly(1);
-                            done();
-                        });
-                });
-        });
-
-    it("Should return 404 trying to ack a non previously pulled  message.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set('Content-Type', 'application/json')
-                .set(config.headers.node_source, 'af123')
-                .set(config.headers.node_destination, 'af123')
-                .send({name: "test"})
-                .expect(201)
-                .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
-                .end(function (err, res) {
-                    if (err)throw err;
-                    request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join('/'))
-                        .set('Authorization', config.master_token)
-                        .set(config.headers.node_source, 'af123')
-                        .expect(404)
-                        .expect('Content-Type', /json/)
-                        .end(function (err, res) {
-                            if (err)throw err;
                             done();
                         });
                 });
