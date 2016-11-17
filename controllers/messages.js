@@ -43,7 +43,8 @@ exports.update = function (req, res, next) {
     models.message.findOneAndUpdate(
         {
             _id: req.params.message_id,
-            $or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]
+            node_source: req.get(node_id_header),
+            $or: [{status: 'pending'}, {status: 'scheduled'}]
         },
         {payload: req.body},
         {runValidators: true, new: true},
@@ -89,7 +90,8 @@ exports.delete = function (req, res, next) {
     var node_id_header = req.app.get('config')['headers']['node_source'];
     models.message.remove({
             _id: req.params.message_id,
-            $or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]
+            node_source: req.get(node_id_header),
+            $or: [{status: 'pending'}, {status: 'scheduled'}]
         },
         function (err, results) {
             if (err) {
@@ -103,7 +105,11 @@ exports.delete = function (req, res, next) {
 exports.deleteAll = function (req, res, next) {
 
     var node_id_header = req.app.get('config')['headers']['node_source'];
-    models.message.remove({$or: [{node_destination: req.get(node_id_header)}, {node_source: req.get(node_id_header)}]},
+    models.message.remove(
+        {
+            node_source: req.get(node_id_header),
+            $or: [{status: 'pending'}, {status: 'scheduled'}]
+        },
         function (err, results) {
             if (err) {
                 next(err);
