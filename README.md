@@ -68,6 +68,7 @@ For running tests , you will need a mongodb instance at localhost.
 ```bash
 git clone https://github.com/eloylp/scirocco-server.git
 cd scirocco-server
+cp .env.dist .env
 npm test
 ```
 ## Available client libraries
