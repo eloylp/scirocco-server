@@ -13,7 +13,7 @@ var config = require('../config');
 var uuid = require('node-uuid');
 
 
-describe('Testing messageQueue resource.', function () {
+describe('Testing PUSH operation of messageQueue resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
@@ -74,14 +74,13 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Should get bad request when pushing a message without 'from header'.", function (done) {
+    it("Should get bad request when pushing a message without 'source header'.", function (done) {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             //.set(config.headers.from, 'af123')
             .set(config.headers.node_destination, '09af1')
             .set('Content-Type', 'application/json')
-            .set(config.headers.status, 'pending')
             .send({name: "test"})
             .expect(400)
             .expect('Content-Type', /json/)
@@ -95,9 +94,26 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Should return same data with correct _id when a complete message is pushed. Other data must not exist.",
-        function (done) {
+    it("Should get bad request when pushing a message without 'destination header'.", function (done) {
 
+        request.post(config.paths.messageQueue)
+            .set('Authorization', config.master_token)
+            .set(config.headers.node_source, 'af123')
+            //.set(config.headers.node_destination, '09af1')
+            .set('Content-Type', 'application/json')
+            .send({name: "test"})
+            .expect(400)
+            .expect('Content-Type', /json/)
+            .end(function (err, res) {
+                if (err)   throw err;
+                (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
+                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('node_destination');
+                done();
+            });
+    });
+
+    it("Should return same data with correct _id between header location and scirocco headers when a complete message is pushed.",
+        function (done) {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
@@ -109,12 +125,8 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-
+                    if (err)  throw err;
                     var resp = res;
-
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
                         .set(config.headers.node_source, 'af123')
@@ -149,9 +161,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -162,6 +172,27 @@ describe('Testing messageQueue resource.', function () {
                             (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
                             done();
                         });
+                });
+        });
+
+    it("Should return bad request 400 when pushing a message with non existant status.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.node_source, 'af123')
+                .set('Content-Type', 'application/json')
+                .set(config.headers.node_destination, 'af123')
+                .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
+                .send({name: "test"})
+                .expect(400)
+                .expect('Content-Type', /json/)
+                .end(function (err, res) {
+                    if (err)  throw err;
+
+                    (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
+                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('status');
+                    done();
                 });
         });
 
@@ -180,9 +211,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -196,29 +225,8 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Should return bad request 400 when pushing a message with no valid status.",
-        function (done) {
 
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.node_source, 'af123')
-                .set('Content-Type', 'application/json')
-                .set(config.headers.node_destination, 'af123')
-                .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
-                .send({name: "test"})
-                .expect(400)
-                .expect('Content-Type', /json/)
-                .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-                    (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('status');
-                    done();
-                });
-        });
-
-    it("Should ignore system message system headers when a user try to cover them.",
+    it("Should ignore metadata only server use headers when a user try to cover them.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -236,9 +244,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -247,9 +253,7 @@ describe('Testing messageQueue resource.', function () {
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
 
-                            if (err) {
-                                throw err;
-                            }
+                            if (err) throw err;
 
                             (res.headers).should.have.ownProperty(config.headers.tries.toLowerCase());
                             (res.headers).should.have.ownProperty(config.headers.created_time.toLowerCase());
@@ -261,19 +265,5 @@ describe('Testing messageQueue resource.', function () {
                         });
                 });
         });
-
-    it("Should can push an string (text-plain) in body.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.node_source, 'af123')
-                .set(config.headers.node_destination, 'af123')
-                .set('Content-Type', 'text/plain')
-                .send('string')
-                .expect('Content-Type', /text/)
-                .expect('string', done);
-        });
-
 
 });

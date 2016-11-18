@@ -13,7 +13,7 @@ var config = require('../config');
 var uuid = require('node-uuid');
 
 
-describe('Testing messageQueue pull operation.', function () {
+describe('Testing PULL operation of messageQueue resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
@@ -39,7 +39,7 @@ describe('Testing messageQueue pull operation.', function () {
             });
     });
 
-    it("Should return an empty object and a 204 status code if no node source setted.", function (done) {
+    it("Should return an empty object and a 204 status code if no node source header setted.", function (done) {
 
         request.get(config.paths.messageQueue)
             .set('Authorization', config.master_token)
@@ -50,7 +50,7 @@ describe('Testing messageQueue pull operation.', function () {
             });
     });
 
-    it("Should pull one message from queue. Must return it in processing state with respective time meatdata.",
+    it("Should pull one message from queue. Must return it in processing state with respective time metadata.",
         function (done) {
 
             var messages = [
@@ -123,6 +123,70 @@ describe('Testing messageQueue pull operation.', function () {
                         done();
                     });
 
+            });
+        });
+
+    it("Should not pull messages in 'processing' state.",
+        function (done) {
+
+            var message = {
+
+                node_source: "af123",
+                node_destination: "af123",
+                payload: {name: "test"},
+                payload_type: "application/json"
+
+            };
+
+            var modelMessage = new model.message(message);
+
+            modelMessage.save(function (err, res) {
+
+                model.message.findOneAndUpdate({_id: res.id}, {status: 'processing'}, function (err, res) {
+
+                    if (err)throw err;
+
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.node_source, 'af123')
+                        .expect(204)
+                        .end(function (err, res) {
+                            if (err) throw err;
+                            done();
+                        });
+                });
+            });
+        });
+
+    it("Should not pull messages in 'processed' state.",
+        function (done) {
+
+            var message = {
+
+                node_source: "af123",
+                node_destination: "af123",
+                payload: {name: "test"},
+                payload_type: "application/json"
+
+            };
+
+            var modelMessage = new model.message(message);
+
+            modelMessage.save(function (err, res) {
+
+                model.message.findOneAndUpdate({_id: res.id}, {status: 'processed'}, function (err, res) {
+
+                    if (err)throw err;
+
+                    request.get(config.paths.messageQueue)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.node_source, 'af123')
+                        .expect(204)
+                        .end(function (err, res) {
+                            if (err) throw err;
+                            done();
+                        });
+                });
             });
         });
 });
