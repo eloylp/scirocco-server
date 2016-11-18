@@ -69,7 +69,7 @@ For running tests , you will need a mongodb instance at localhost.
 docker run -p 27017:27017 --name scirocco-mongo-testing -d mongo
 git clone https://github.com/eloylp/scirocco-server.git
 cd scirocco-server
-cp .env.dist .env
+cp .env.travis.dist .env
 npm test
 ```
 ## Available client libraries
