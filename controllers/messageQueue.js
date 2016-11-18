@@ -14,6 +14,7 @@ exports.queuePull = function (req, res, next) {
             },
             {
                 status: "processing",
+                processing_time: new Date(),
                 $inc: {"tries": 1}
             },
             {new: true})

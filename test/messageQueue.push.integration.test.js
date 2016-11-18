@@ -13,7 +13,7 @@ var config = require('../config');
 var uuid = require('node-uuid');
 
 
-describe('Testing messageQueue resource.', function () {
+describe('Testing PUSH operation of messageQueue resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
@@ -24,68 +24,6 @@ describe('Testing messageQueue resource.', function () {
     afterEach(function (done) {
         server.close(function () {
             model.message.remove({}, done);
-        });
-    });
-
-    it("Should return an empty object and a 204 status code if no messages remaining.", function (done) {
-
-        request.get(config.paths.messageQueue)
-            .set(config.headers.node_source, 'af123')
-            .set('Authorization', config.master_token)
-            .expect(204)
-            .end(function (err, res) {
-
-                if (err) {
-                    throw err;
-                }
-                (res.body).should.be.instanceOf(Object);
-                done();
-            });
-    });
-
-    it("Should pull one message from queue. Must return it in processing state.", function (done) {
-
-        var messages = [
-            {
-                node_destination: "af123",
-                node_source: "af123",
-                status: "pending",
-                payload: {name: "test"},
-                payload_type: "application/json"
-
-            },
-            {
-                node_destination: 'af123',
-                node_source: 'af123',
-                status: "pending",
-                payload: {name: "test"},
-                payload_type: "application/json"
-
-            }
-        ];
-
-        model.message.insertMany(messages, function (err, res) {
-
-            if (err) {
-                throw err;
-            }
-
-            request.get(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.node_source, 'af123')
-                .expect('Content-Type', /json/)
-                .expect(200)
-                .end(function (err, res) {
-
-                    if (err) {
-                        throw err;
-                    }
-
-                    (res.headers[config.headers.node_destination.toLowerCase()]).should.be.equal('af123');
-                    (res.headers[config.headers.node_source.toLowerCase()]).should.be.equal('af123');
-                    (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processing');
-                    done();
-                });
         });
     });
 
@@ -109,45 +47,6 @@ describe('Testing messageQueue resource.', function () {
                 (res.body.name).should.be.equal('test');
 
                 done();
-            });
-    });
-
-    it("Should ack an existing message as processed.", function (done) {
-        /// Post the message.
-        request.post(config.paths.messageQueue)
-            .set('Authorization', config.master_token)
-            .set('Content-Type', 'application/json')
-            .set(config.headers.node_source, 'af123')
-            .set(config.headers.node_destination, 'af123')
-            .send({"name": "tester"})
-            .end(function (err, res) {
-
-                if (err) {
-                    throw err;
-                }
-                /// Get the message.
-                request.get(config.paths.messageQueue)
-                    .set('Authorization', config.master_token)
-                    .set(config.headers.node_source, 'af123')
-                    .end(function (err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        /// Ack message
-                        request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join("/"))
-                            .set('Authorization', config.master_token)
-                            .set(config.headers.node_source, 'af123')
-                            .end(function (err, res) {
-                                if (err) {
-                                    throw err;
-                                }
-
-                                (res.headers[config.headers.status.toLowerCase()]).should.be.equal('processed');
-                                done();
-
-                            });
-                    });
             });
     });
 
@@ -175,14 +74,13 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Should get bad request when pushing a message without 'from header'.", function (done) {
+    it("Should get bad request when pushing a message without 'source header'.", function (done) {
 
         request.post(config.paths.messageQueue)
             .set('Authorization', config.master_token)
             //.set(config.headers.from, 'af123')
             .set(config.headers.node_destination, '09af1')
             .set('Content-Type', 'application/json')
-            .set(config.headers.status, 'pending')
             .send({name: "test"})
             .expect(400)
             .expect('Content-Type', /json/)
@@ -196,9 +94,26 @@ describe('Testing messageQueue resource.', function () {
             });
     });
 
-    it("Should return same data with correct _id when a complete message is pushed. Other data must not exist.",
-        function (done) {
+    it("Should get bad request when pushing a message without 'destination header'.", function (done) {
 
+        request.post(config.paths.messageQueue)
+            .set('Authorization', config.master_token)
+            .set(config.headers.node_source, 'af123')
+            //.set(config.headers.node_destination, '09af1')
+            .set('Content-Type', 'application/json')
+            .send({name: "test"})
+            .expect(400)
+            .expect('Content-Type', /json/)
+            .end(function (err, res) {
+                if (err)   throw err;
+                (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
+                (res.body.errors).should.be.an.instanceOf(Object).and.have.property('node_destination');
+                done();
+            });
+    });
+
+    it("Should return same data with correct _id between header location and scirocco headers when a complete message is pushed.",
+        function (done) {
 
             request.post(config.paths.messageQueue)
                 .set('Authorization', config.master_token)
@@ -210,12 +125,8 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-
+                    if (err)  throw err;
                     var resp = res;
-
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
                         .set(config.headers.node_source, 'af123')
@@ -250,9 +161,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -263,6 +172,27 @@ describe('Testing messageQueue resource.', function () {
                             (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("pending");
                             done();
                         });
+                });
+        });
+
+    it("Should return bad request 400 when pushing a message with non existant status.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.node_source, 'af123')
+                .set('Content-Type', 'application/json')
+                .set(config.headers.node_destination, 'af123')
+                .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
+                .send({name: "test"})
+                .expect(400)
+                .expect('Content-Type', /json/)
+                .end(function (err, res) {
+                    if (err)  throw err;
+
+                    (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
+                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('status');
+                    done();
                 });
         });
 
@@ -281,9 +211,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -297,29 +225,8 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Should return bad request 400 when pushing a message with no valid status.",
-        function (done) {
 
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.node_source, 'af123')
-                .set('Content-Type', 'application/json')
-                .set(config.headers.node_destination, 'af123')
-                .set(config.headers.status, 'pendinggggggggggggggggggggggggggggggggggggg')
-                .send({name: "test"})
-                .expect(400)
-                .expect('Content-Type', /json/)
-                .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-                    (res.body).should.be.an.instanceOf(Object).and.have.property('errors');
-                    (res.body.errors).should.be.an.instanceOf(Object).and.have.property('status');
-                    done();
-                });
-        });
-
-    it("Should ignore system message system headers when a user try to cover them.",
+    it("Should ignore metadata only server use headers when a user try to cover them.",
         function (done) {
 
             request.post(config.paths.messageQueue)
@@ -337,9 +244,7 @@ describe('Testing messageQueue resource.', function () {
                 .expect('Content-Type', /json/)
                 .expect('Location', /\/messages\/[0-9a-f]/)
                 .end(function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
+                    if (err)  throw err;
 
                     request.get(res.header.location)
                         .set('Authorization', config.master_token)
@@ -348,9 +253,7 @@ describe('Testing messageQueue resource.', function () {
                         .expect('Content-Type', /json/)
                         .end(function (err, res) {
 
-                            if (err) {
-                                throw err;
-                            }
+                            if (err) throw err;
 
                             (res.headers).should.have.ownProperty(config.headers.tries.toLowerCase());
                             (res.headers).should.have.ownProperty(config.headers.created_time.toLowerCase());
@@ -363,71 +266,4 @@ describe('Testing messageQueue resource.', function () {
                 });
         });
 
-    it("Should can push an string (text-plain) in body.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set(config.headers.node_source, 'af123')
-                .set(config.headers.node_destination, 'af123')
-                .set('Content-Type', 'text/plain')
-                .send('string')
-                .expect('Content-Type', /text/)
-                .expect('string', done);
-        });
-
-    it("Should return tries incremented by one when pull a message.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set('Content-Type', 'application/json')
-                .set(config.headers.node_source, 'af123')
-                .set(config.headers.node_destination, 'af123')
-                .send({name: "test"})
-                .expect(201)
-                .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
-                .end(function (err, res) {
-                    if (err)throw err;
-
-                    request.get(config.paths.messageQueue)
-                        .set('Authorization', config.master_token)
-                        .set(config.headers.node_source, 'af123')
-                        .expect(200)
-                        .expect('Content-Type', /json/)
-                        .end(function (err, res) {
-                            if (err)throw err;
-
-                            (parseInt(res.headers[config.headers.tries.toLowerCase()])).should.be.exactly(1);
-                            done();
-                        });
-                });
-        });
-
-    it("Should return 404 trying to ack a non previously pulled  message.",
-        function (done) {
-
-            request.post(config.paths.messageQueue)
-                .set('Authorization', config.master_token)
-                .set('Content-Type', 'application/json')
-                .set(config.headers.node_source, 'af123')
-                .set(config.headers.node_destination, 'af123')
-                .send({name: "test"})
-                .expect(201)
-                .expect('Content-Type', /json/)
-                .expect('Location', /\/messages\/[0-9a-f]/)
-                .end(function (err, res) {
-                    if (err)throw err;
-                    request.patch([config.paths.messageQueue, res.headers[config.headers.id.toLowerCase()], 'ack'].join('/'))
-                        .set('Authorization', config.master_token)
-                        .set(config.headers.node_source, 'af123')
-                        .expect(404)
-                        .expect('Content-Type', /json/)
-                        .end(function (err, res) {
-                            if (err)throw err;
-                            done();
-                        });
-                });
-        });
 });

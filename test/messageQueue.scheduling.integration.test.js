@@ -13,7 +13,7 @@ var config = require('../config');
 var uuid = require('node-uuid');
 
 
-describe('Testing messageQueue resource.', function () {
+describe('Testing SCHEDULING operation of messageQueue resource.', function () {
 
     beforeEach(function (done) {
         delete require.cache[require.resolve('../bin/www')];
@@ -26,6 +26,38 @@ describe('Testing messageQueue resource.', function () {
             model.message.remove({}, done);
         });
     });
+
+    it("Should accept scheduled state in message push.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.node_source, 'af123')
+                .set('Content-Type', 'application/json')
+                .set(config.headers.node_destination, 'af123')
+                .set(config.headers.status, 'scheduled')
+                .set(config.headers.scheduled_time, Date.now() + 10000)
+                .send({name: "test"})
+                .expect(201)
+                .expect('Content-Type', /json/)
+                .expect('Location', /\/messages\/[0-9a-f]/)
+                .end(function (err, res) {
+                    if (err) {
+                        throw err;
+                    }
+
+                    request.get(res.header.location)
+                        .set('Authorization', config.master_token)
+                        .set(config.headers.node_source, 'af123')
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (req, res) {
+                            (res.headers[config.headers.status.toLowerCase()]).should.be.exactly("scheduled");
+                            done();
+                        });
+                });
+        });
+
 
     it("Should requires scheduled time header to be in scheduled message.",
         function (done) {
@@ -217,7 +249,6 @@ describe('Testing messageQueue resource.', function () {
             var messageModel = new model.message(message);
             messageModel.save(function (err, res) {
                 if (err)  throw err;
-                var scheduled_time = res.scheduled_time;
 
                 setTimeout(function () {
                     request.get(config.paths.messageQueue)

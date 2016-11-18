@@ -15,7 +15,7 @@ var server;
 var config = require('../config');
 
 
-describe('Testing api data types support.', function () {
+describe('Testing server data types support.', function () {
 
 
     beforeEach(function (done) {
@@ -60,4 +60,18 @@ describe('Testing api data types support.', function () {
                 });
         });
     });
+
+    it("Should can push an string (text-plain) in body.",
+        function (done) {
+
+            request.post(config.paths.messageQueue)
+                .set('Authorization', config.master_token)
+                .set(config.headers.node_source, 'af123')
+                .set(config.headers.node_destination, 'af123')
+                .set('Content-Type', 'text/plain')
+                .send('string')
+                .expect('Content-Type', /text/)
+                .expect('string', done);
+        });
+
 });
