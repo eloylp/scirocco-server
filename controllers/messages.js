@@ -54,8 +54,13 @@ exports.update = function (req, res, next) {
                 next(err);
             } else {
 
-                res.status(200);
-                outPutTreatement.output(res, results);
+                if (results) {
+                    res.status(200);
+                    outPutTreatement.output(res, results);
+                } else {
+                    res.status(404);
+                    res.json({"message": "Resource not found."});
+                }
             }
         });
 };
@@ -75,7 +80,7 @@ exports.show = function (req, res) {
             if (err) {
                 next(err);
             }
-            if (result != null) {
+            if (result) {
                 outPutTreatement.output(res, result);
             } else {
                 res.status(404);
