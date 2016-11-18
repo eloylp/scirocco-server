@@ -66,6 +66,7 @@ curl -H 'Authorization: DEFAULT_TOKEN' http://localhost
 For running tests , you will need a mongodb instance at localhost.
 
 ```bash
+docker run -p 27017:27017 --name scirocco-mongo-testing -d mongo
 git clone https://github.com/eloylp/scirocco-server.git
 cd scirocco-server
 cp .env.dist .env
