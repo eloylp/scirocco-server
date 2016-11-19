@@ -27,7 +27,8 @@ module.exports = (function () {
 
     config.paths = {
         messages: "/messages",
-        messageQueue: "/messageQueue",       
+        messageQueue: "/messageQueue",
+        globalDataSpace: "/globalDataSpace"
     };
 
     /// Sizes units are controlled by third party lib. see https://www.npmjs.com/package/bytes
