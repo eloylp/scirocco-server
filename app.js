@@ -44,11 +44,13 @@ app.use(requestTreatmentMiddleWare.checkContentType());
 var indexRoutes = require('./routes/index');
 var messageRoutes = require('./routes/messages');
 var messageQueueRoutes = require('./routes/messageQueue');
+var globalDataSpace = require('./routes/globalDataSpace');
 
 
 app.use('/', indexRoutes);
 app.use('/messages', messageRoutes);
 app.use('/messageQueue', messageQueueRoutes);
+app.use('/globalDataSpace', globalDataSpace);
 
 
 app.use(errorHandlersMiddleWare.notFoundRedir());
