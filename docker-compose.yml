@@ -15,8 +15,10 @@ services:
       - SCIROCCO_MAX_KB_SIZE_JSON
       - SCIROCCO_MAX_GET_ALL_MESSAGES
 
-    user: app
-    build: node
+    user: node
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
     image: scirocco-server
     ports:
       - "${SCIROCCO_DOCKER_HOST_PORT}:${SCIROCCO_PORT}"
@@ -28,7 +30,9 @@ services:
       - "scirocco_db"
   scirocco_db:
     restart: always
-    build: mongo
+    build:
+      context: .
+      dockerfile: docker/mongo/Dockerfile
     image: scirocco-mongo
     expose:
       - "27017"
@@ -43,4 +47,3 @@ services:
 
 
 
-  
