@@ -2,7 +2,7 @@
 # Scirocco Server
 [![Build Status](https://travis-ci.org/eloylp/scirocco-server.svg?branch=develop)](https://travis-ci.org/eloylp/scirocco-server)
 
-Scirocco its a data distribution service (near real-time) over the HTTP protocol. It can act as data bus and gateway. Its a way to centralize and simplify inter service communications (ISC) as well as IoT communications.
+Scirocco its a data distribution service (near real-time) over the HTTP protocol. It can act as data bus and gateway. Its a way to centralize and simplify inter service communications (ISC) as well as IoT communications or monitoring.
 
 ## Organization
 
@@ -69,6 +69,7 @@ Adapt [this compose file](docker-compose.yml) file to your needs.
 For running tests , you will need a mongodb instance at localhost.
 
 ```bash
+docker run -p 27017:27017 --name scirocco-mongo-testing -d mongo
 git clone https://github.com/eloylp/scirocco-server.git
 cd scirocco-server
 npm install
