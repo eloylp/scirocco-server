@@ -7,8 +7,6 @@ services:
     working_dir: /usr/src/app
     environment:
       - SCIROCCO_ENV
-      - SCIROCCO_PORT
-      - SCIROCCO_MONGO_URL
       - SCIROCCO_MASTER_TOKEN
       - SCIROCCO_MAX_KB_SIZE_RAW
       - SCIROCCO_MAX_KB_SIZE_TEXT
@@ -21,7 +19,7 @@ services:
       dockerfile: docker/node/Dockerfile
     image: scirocco-server
     ports:
-      - "${SCIROCCO_DOCKER_HOST_PORT}:${SCIROCCO_PORT}"
+      - "${SCIROCCO_DOCKER_HOST_PORT}:8000"
     networks:
       scirocco_mongo:
         aliases:

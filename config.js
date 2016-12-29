@@ -4,7 +4,7 @@ module.exports = (function () {
 
     config.environment = process.env.SCIROCCO_ENV || 'development';
     config.port = parseInt(process.env.SCIROCCO_PORT) || 8000;
-    config.mongoUrl = process.env.SCIROCCO_MONGO_URL || 'mongodb://localhost/scirocco-server';
+    config.mongoUrl = process.env.SCIROCCO_MONGO_URL || 'mongodb://scirocco-db/scirocco-server';
     config.xPoweredBy = false;
 
     config.header_prefix = "Scirocco";
