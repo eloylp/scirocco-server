@@ -1,7 +1,3 @@
-/// Load environment
-
-var env = require('node-env-file');
-env(__dirname + '/../.env');
 
 var supertest = require('supertest');
 var should = require('should');
