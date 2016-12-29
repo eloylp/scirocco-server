@@ -3,5 +3,13 @@ node_js:
   - "6"
 services:
   - mongodb
-before_script:
-  - cp .env.travis.dist .env
+env:
+  global:
+    - SCIROCCO_ENV=development
+    - SCIROCCO_PORT=8000
+    - SCIROCCO_MONGO_URL=mongodb://localhost/scirocco-server
+    - SCIROCCO_MASTER_TOKEN=DEFAULT_TOKEN
+    - SCIROCCO_MAX_KB_SIZE_RAW=1000
+    - SCIROCCO_MAX_KB_SIZE_TEXT=100
+    - SCIROCCO_MAX_KB_SIZE_JSON=100
+    - SCIROCCO_MAX_GET_ALL_MESSAGES=100

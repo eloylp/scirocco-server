@@ -1,14 +1,4 @@
-/// Load environment.
-if (!process.env.SCIROCCO_NO_ENV_FILE) {
 
-    var env = require('node-env-file');
-    try {
-        env(__dirname + '/.env');
-    } catch (err) {
-        console.error("Error reading .env file. You can copy an example from .env.dist .");
-        process.exit(1);
-    }
-}
 /// Dependencies
 
 var config = require('./config.js');
